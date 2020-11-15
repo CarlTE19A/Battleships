@@ -9,17 +9,17 @@ namespace Ship
         static void Main(string[] args)
         {
         //Basic Rules
-            int width = 1000;
-            int height = 1000;
-            int FPS;
-            int gridsize = 10;   //Gridsize should preferebly to be divisible by border*2
-            int border = 20;
-            int gameStage = 1;
+            int width = 1000;   //The width of the window (Ish) width*1.5
+            int height = 1000;  //The height of the window
+            int FPS;            //How fast the game runs
+            int gridsize = 20;  //Hard to use over arund 100   //May still be a problem with some numbers
+            int border = 20;    //Can be changed but pls dont
+            int gameStage = 1;  //0 = Menu, 1 = Game
             int gamePhase = 0;  //0 = Build Ships, 1 = Play
-            int shipStage = 0;
-            string ship = "";
-            string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            int activePlayer = 0;
+            int shipStage = 0;  //What ship player is building
+            string ship = "";   //Name of ship being built
+            string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; //The english alphabet, simplest way, in use when converting numbers to letters
+            int activePlayer = 0;   //What player is currently playing
 
             Vector2 gridMainPos = new Vector2(((width-(border*2))/gridsize), ((height-(border*2))/gridsize));
             Vector2 gridMainSize = new Vector2((width/gridsize)-((border*2)/gridsize), (height/gridsize)-((border*2)/gridsize));
@@ -30,14 +30,14 @@ namespace Ship
             Color waterLines = new Color(0, 0, 0, 255);
 
         //Player 1
-            int[,] player1 = new int[gridsize, gridsize];
+            bool[,] player1 = new bool[gridsize, gridsize]; //If true that position has a ship on it? Should maybe be an int to know what ship being shot
             Color p1Color = new Color(200,20,20,255);
         //Player 2
-            int[,] player2 = new int[gridsize, gridsize];
+            bool[,] player2 = new bool[gridsize, gridsize]; //If true that position has a ship on it? Should maybe be an int to know what ship being shot
             Color p2Color = new Color(190,190,0,255);
         //Cursor
-            int cursorX = 0;
-            int cursorY = 0;
+            int cursorX = gridsize/2;
+            int cursorY = gridsize/2;
             int cursorTime = 0;
             char cursorXletter = ' ';
             string cursorXstr = "";
@@ -46,16 +46,15 @@ namespace Ship
             Color cursor = new Color(0, 200, 0, 128);
 
         //Start Program
-            Raylib.SetTargetFPS(60);
-            Raylib.InitWindow(width+width/2, height, "Battleships");
-            while(!Raylib.WindowShouldClose())
+            Raylib.SetTargetFPS(60);        //Prefereble FPS
+            Raylib.InitWindow(width+width/2, height, "Battleships");    //Makeing the window
+            while(!Raylib.WindowShouldClose())                          //Game Loop
             {
-                Raylib.SetExitKey(0);
-                //if(Raylib.GetKeyPressed)
-                Raylib.BeginDrawing();
-                Raylib.ClearBackground(Color.BLACK);
-                FPS = Raylib.GetFPS();
-                Raylib.DrawText($"FPS: {FPS}", width-80, height-18, 16, Color.WHITE);
+                Raylib.SetExitKey(0);       //Dont exit with Esc
+                Raylib.BeginDrawing();      //Start drawing (Including everything to be able to draw at any point)
+                Raylib.ClearBackground(Color.BLACK);    //Basic Background
+                FPS = Raylib.GetFPS();      //The FPS
+                Raylib.DrawText($"FPS: {FPS}", width-80, height-18, 16, Color.WHITE);   //Draws FPS, remove?
                 if(gameStage == 0)
                 {
                     menu();
@@ -84,10 +83,22 @@ namespace Ship
                 if(activePlayer == 0)
                 {
                     Raylib.ClearBackground(p1Color);
+                    if(Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
+                    {
+                        activePlayer = 1;
+                        cursorX = gridsize/2;
+                        cursorY = gridsize/2;
+                    }
                 }
                 else if(activePlayer == 1)
                 {
                     Raylib.ClearBackground(p2Color);
+                    if(Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
+                    {
+                        activePlayer = 0;
+                        cursorX = gridsize/2;
+                        cursorY = gridsize/2;
+                    }
                 }
                 else
                 {
@@ -106,6 +117,7 @@ namespace Ship
                     }
                 }
                 movement();
+                
                 if(gamePhase == 0)
                 {
                     if(shipStage == 0)
@@ -122,6 +134,7 @@ namespace Ship
                     }
                 }
             }
+
             void movement()
             {
                 if(Raylib.IsKeyPressed(KeyboardKey.KEY_UP) || Raylib.IsKeyPressed(KeyboardKey.KEY_W))
@@ -200,52 +213,41 @@ namespace Ship
                 {
                     cursorTime = 0;
                 }
+                
+                //Displays X and Y Pos for Cursor
                 cursorXstr = "";
                 cursorYstr = "";
                 
-                for (int i = 0; i < 4; i++)
-                {
-                    
-                }
-                if( cursorX >= 0 && cursorX < 26 )
-                {
-                    cursorXstr+="A";
-                }
-                else if( cursorX >= 26 && cursorX < 52 )
-                {
-                    cursorXstr+="B";
-                }
-                else if( cursorX >= 52 && cursorX < 78 )
-                {
-                    cursorXstr+="C";
-                }
-                else if( cursorX >= 78 && cursorX < 104 )
-                {
-                    cursorXstr+="D";
-                }
-            //Skip part if gridsize is lower then 27?
                 float tryLength = gridsize/26f;
                 for (int i = 0; i < Math.Ceiling(tryLength); i++)   //Bad Way because a large amount of breaking of try so lower FPS (break improves for earlier part of 'i')
                 {
                     try
                     {
-                        cursorXletter = alphabet[cursorX-26*i];
-                        cursorXstr+=cursorXletter;
-                        break;
+                        if(cursorX >= (i*26) && cursorX < (i*26)+26)    //Search the correct set, only the correct 'A'X or 'B'X or 'C'X
+                        {
+                            cursorXstr+=alphabet[i];
+                            cursorXletter = alphabet[cursorX-26*(i)];   //Find the exact letter of alphabet to add
+                            cursorXstr+=cursorXletter;                  //Adds it to the printed string
+                            break;          //Extra Safty by stoping loop if correct point found
+                        }
                     }
-                    catch
-                    {}
+                    catch{      //If something happens, shouldent but to be safe
+                        System.Console.WriteLine($"Error: cursorX out of index{cursorX}");  //If the X position is somehow wrong, Error Messege
+                    }
                 }
 
-                if(cursorY < 9)
+                if(cursorY > gridsize - 10) //To add 0 before for a more systemiced Grid system (Y)
                 {
                     cursorYstr += "0";
                 }
-                cursorYstr += (cursorY+1);
-            //Skip to here
-                Raylib.DrawRectangle(border+cursorX*((width-(border*2))/gridsize), border+cursorY*((height-(border*2))/gridsize), (width/gridsize)-((border*2)/gridsize), (height/gridsize)-((border*2)/gridsize), cursor);
+
+                cursorYstr += (gridsize-cursorY);   //To show count starting from bottom left for player and not top left
+                Raylib.DrawRectangle(border+cursorX*((width-(border*2))/gridsize), border+cursorY*((height-(border*2))/gridsize), (int)gridMainSize.X, (int)gridMainSize.Y, cursor);
                 Raylib.DrawText($"{cursorXstr} {cursorYstr}", border/10+width, border/10 + height/2, (border/10)*18, Color.BLACK);
             }
         }
     }
 }
+
+//FIX
+//Change reset point so random for 4 middle points if even gridsize
