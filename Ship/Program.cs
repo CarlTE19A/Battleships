@@ -72,38 +72,23 @@ namespace Ship
 
         //Images
             Image cursorImg = Raylib.LoadImage(@"Textures/CursorRed.png");
-            Raylib.ImageResize(ref cursorImg, (int)gridMainSize.X, (int)gridMainSize.Y);
 
             Image backGroundImg = Raylib.LoadImage(@"Textures/Back2.png");
-            Raylib.ImageResize(ref backGroundImg, width+ width/2 ,height);
             Image backGroundMenuImg = Raylib.LoadImage(@"Textures/BackMenu.png");
-            Raylib.ImageResize(ref backGroundImg, width+ width/2 ,height);
 
             Color gridCol = new Color(200,200,200,255);
             Image bg0 = Raylib.LoadImage(@"Textures/grid/Used/bg0.png");
-            Raylib.ImageResize(ref bg0, (int)gridMainSize.X, (int)gridMainSize.Y);
             Image bg1 = Raylib.LoadImage(@"Textures/grid/Used/bg1.png");
-            Raylib.ImageResize(ref bg1, (int)gridMainSize.X, (int)gridMainSize.Y);
             Image bg2 = Raylib.LoadImage(@"Textures/grid/Used/bg2.png");
-            Raylib.ImageResize(ref bg2, (int)gridMainSize.X, (int)gridMainSize.Y);
             Image bg3 = Raylib.LoadImage(@"Textures/grid/Used/bg3.png");
-            Raylib.ImageResize(ref bg3, (int)gridMainSize.X, (int)gridMainSize.Y);
             Image bg4 = Raylib.LoadImage(@"Textures/grid/Used/bg4.png");
-            Raylib.ImageResize(ref bg4, (int)gridMainSize.X, (int)gridMainSize.Y);
             Image bg5 = Raylib.LoadImage(@"Textures/grid/Used/bg5.png");
-            Raylib.ImageResize(ref bg5, (int)gridMainSize.X, (int)gridMainSize.Y);
             Image bg6 = Raylib.LoadImage(@"Textures/grid/Used/bg6.png");
-            Raylib.ImageResize(ref bg6, (int)gridMainSize.X, (int)gridMainSize.Y);
             Image bg7 = Raylib.LoadImage(@"Textures/grid/Used/bg7.png");
-            Raylib.ImageResize(ref bg7, (int)gridMainSize.X, (int)gridMainSize.Y);
             Image bg8 = Raylib.LoadImage(@"Textures/grid/Used/bg8.png");
-            Raylib.ImageResize(ref bg8, (int)gridMainSize.X, (int)gridMainSize.Y);
             Image bg9 = Raylib.LoadImage(@"Textures/grid/Used/bg9.png");
-            Raylib.ImageResize(ref bg9, (int)gridMainSize.X, (int)gridMainSize.Y); 
             Image bg10 = Raylib.LoadImage(@"Textures/grid/Used/bg10.png");
-            Raylib.ImageResize(ref bg10, (int)gridMainSize.X, (int)gridMainSize.Y);
             Image bg11 = Raylib.LoadImage(@"Textures/grid/Used/bg11.png");
-            Raylib.ImageResize(ref bg11, (int)gridMainSize.X, (int)gridMainSize.Y);
 
             //Buttons
             Image butMenHovImg = Raylib.LoadImage(@"Textures/buttons/butMenHov.png");     //Menu button
@@ -137,31 +122,19 @@ namespace Ship
 
             //Player 1 Ships
             Image player1_1x3Img = Raylib.LoadImage(@"Textures/ships/Spaceship_01_RED.png");
-            Raylib.ImageResize(ref player1_1x3Img, (int)gridMainSize.X, (int)gridMainSize.Y*3);
             Image player1_1x2Img = Raylib.LoadImage(@"Textures/ships/Spaceship_02_RED.png");
-            Raylib.ImageResize(ref player1_1x2Img, (int)gridMainSize.X, (int)gridMainSize.Y*2);
             Image player1_Test3Img = Raylib.LoadImage(@"Textures/ships/Spaceship_03_RED.png");
-            Raylib.ImageResize(ref player1_Test3Img, (int)gridMainSize.X*2, (int)gridMainSize.Y*2);
             Image player1_1x5Img = Raylib.LoadImage(@"Textures/ships/Spaceship_04_RED.png");
-            Raylib.ImageResize(ref player1_1x5Img, (int)gridMainSize.X, (int)gridMainSize.Y*5);
             Image player1_1x4Img = Raylib.LoadImage(@"Textures/ships/Spaceship_05_RED.png");
-            Raylib.ImageResize(ref player1_1x4Img, (int)gridMainSize.X, (int)gridMainSize.Y*4);
             Image player1_Test6Img = Raylib.LoadImage(@"Textures/ships/Spaceship_06_RED.png");
-            Raylib.ImageResize(ref player1_Test6Img, (int)gridMainSize.X, (int)gridMainSize.Y);
 
             //Player 2 Ships
             Image player2_1x3Img = Raylib.LoadImage(@"Textures/ships/Spaceship_01_GREEN.png");
-            Raylib.ImageResize(ref player2_1x3Img, (int)gridMainSize.X, (int)gridMainSize.Y*3);
             Image player2_1x2Img = Raylib.LoadImage(@"Textures/ships/Spaceship_02_GREEN.png");
-            Raylib.ImageResize(ref player2_1x2Img, (int)gridMainSize.X, (int)gridMainSize.Y*2);
             Image player2_Test3Img = Raylib.LoadImage(@"Textures/ships/Spaceship_03_GREEN.png");
-            Raylib.ImageResize(ref player2_Test3Img, (int)gridMainSize.X, (int)gridMainSize.Y);
             Image player2_1x5Img = Raylib.LoadImage(@"Textures/ships/Spaceship_04_GREEN.png");
-            Raylib.ImageResize(ref player2_1x5Img, (int)gridMainSize.X, (int)gridMainSize.Y*5);
             Image player2_1x4Img = Raylib.LoadImage(@"Textures/ships/Spaceship_05_GREEN.png");
-            Raylib.ImageResize(ref player2_1x4Img, (int)gridMainSize.X, (int)gridMainSize.Y*4);
             Image player2_Test6Img = Raylib.LoadImage(@"Textures/ships/Spaceship_06_GREEN.png");
-            Raylib.ImageResize(ref player2_Test6Img, (int)gridMainSize.X, (int)gridMainSize.Y);
 
         //Start Program
             Raylib.SetTargetFPS(60);        //Prefereble FPS
@@ -233,6 +206,7 @@ namespace Ship
             Texture2D player2_1x5Tex = Raylib.LoadTextureFromImage(player2_1x5Img);
             Texture2D player2_1x4Tex = Raylib.LoadTextureFromImage(player2_1x4Img);
             Texture2D player2_Test6Tex = Raylib.LoadTextureFromImage(player2_Test6Img);
+            WindowResize();
 
             while(!Raylib.WindowShouldClose())                          //Game Loop
             {
@@ -652,10 +626,17 @@ namespace Ship
 
             void WindowResize() //Because when the window is resized textures need to be recalculated   //Future
             {
-                Vector2 gridMainPos = new Vector2(((width-(border*2))/gridSize), ((height-(border*2))/gridSize));   //The position to calculate the correct spot for each squre
-                Vector2 gridMainSize = new Vector2((width/gridSize)-((border*2)/gridSize), (height/gridSize)-((border*2)/gridSize));    //The Size of the squres
+            //Change Values
+                gridMainPos = new Vector2(((width-(border*2))/gridSize), ((height-(border*2))/gridSize));   //The position to calculate the correct spot for each squre
+                gridMainSize = new Vector2((width/gridSize)-((border*2)/gridSize), (height/gridSize)-((border*2)/gridSize));    //The Size of the squres
 
-                Vector2 gridSidePos = new Vector2(((width-(border*2))/gridSize)/2, ((height-(border*2))/gridSize)/2);   //The position to calculate the side squres
+                gridSidePos = new Vector2(((width-(border*2))/gridSize)/2, ((height-(border*2))/gridSize)/2);   //The position to calculate the side squres
+            
+            //Image Resizeing
+                Raylib.ImageResize(ref cursorImg, (int)gridMainSize.X, (int)gridMainSize.Y);
+                Raylib.ImageResize(ref backGroundImg, width+ width/2 ,height);
+                Raylib.ImageResize(ref backGroundImg, width+ width/2 ,height);
+
                 Raylib.ImageResize(ref bg0, (int)gridMainSize.X, (int)gridMainSize.Y);
                 Raylib.ImageResize(ref bg1, (int)gridMainSize.X, (int)gridMainSize.Y);
                 Raylib.ImageResize(ref bg2, (int)gridMainSize.X, (int)gridMainSize.Y);
@@ -678,42 +659,72 @@ namespace Ship
                 Raylib.ImageResize(ref player1_Test6Img, (int)gridMainSize.X, (int)gridMainSize.Y);
 
             //Player 2 Ships
-                Raylib.ImageResize(ref player2_1x3Img, (int)gridMainSize.X, (int)gridMainSize.Y);
-                Raylib.ImageResize(ref player2_1x2Img, (int)gridMainSize.X, (int)gridMainSize.Y);
-                Raylib.ImageResize(ref player2_Test3Img, (int)gridMainSize.X, (int)gridMainSize.Y);
-                Raylib.ImageResize(ref player2_1x5Img, (int)gridMainSize.X, (int)gridMainSize.Y);
-                Raylib.ImageResize(ref player2_1x4Img, (int)gridMainSize.X, (int)gridMainSize.Y);
+                Raylib.ImageResize(ref player2_1x3Img, (int)gridMainSize.X, (int)gridMainSize.Y*3);
+                Raylib.ImageResize(ref player2_1x2Img, (int)gridMainSize.X, (int)gridMainSize.Y*2);
+                Raylib.ImageResize(ref player2_Test3Img, (int)gridMainSize.X, (int)gridMainSize.Y*2);
+                Raylib.ImageResize(ref player2_1x5Img, (int)gridMainSize.X, (int)gridMainSize.Y*5);
+                Raylib.ImageResize(ref player2_1x4Img, (int)gridMainSize.X, (int)gridMainSize.Y*4);
                 Raylib.ImageResize(ref player2_Test6Img, (int)gridMainSize.X, (int)gridMainSize.Y);
-                
-                Texture2D cursorTex = Raylib.LoadTextureFromImage(cursorImg);
-                Texture2D backGroundTex = Raylib.LoadTextureFromImage(backGroundImg);
+            
+            //Textures Reload
+                cursorTex = Raylib.LoadTextureFromImage(cursorImg);
+                backGroundTex = Raylib.LoadTextureFromImage(backGroundImg);
+                backGroundMenuTex = Raylib.LoadTextureFromImage(backGroundMenuImg);
 
-                Texture2D bgTex0 = Raylib.LoadTextureFromImage(bg0);
-                Texture2D bgTex1 = Raylib.LoadTextureFromImage(bg1);
-                Texture2D bgTex2 = Raylib.LoadTextureFromImage(bg2);
-                Texture2D bgTex3 = Raylib.LoadTextureFromImage(bg3);
-                Texture2D bgTex4 = Raylib.LoadTextureFromImage(bg4);
-                Texture2D bgTex5 = Raylib.LoadTextureFromImage(bg5);
-                Texture2D bgTex6 = Raylib.LoadTextureFromImage(bg6);
-                Texture2D bgTex7 = Raylib.LoadTextureFromImage(bg7);
-                Texture2D bgTex8 = Raylib.LoadTextureFromImage(bg8);
-                Texture2D bgTex9 = Raylib.LoadTextureFromImage(bg9);     
-                Texture2D bgTex10 = Raylib.LoadTextureFromImage(bg10);
-                Texture2D bgTex11 = Raylib.LoadTextureFromImage(bg11);
+                butMenHovTex = Raylib.LoadTextureFromImage(butMenHovImg);
+                butMenOrgTex = Raylib.LoadTextureFromImage(butMenOrgImg);
+                butMenPreTex = Raylib.LoadTextureFromImage(butMenPreImg);
 
-                Texture2D player1_1x3Tex = Raylib.LoadTextureFromImage(player1_1x3Img);
-                Texture2D player1_1x2Tex = Raylib.LoadTextureFromImage(player1_1x2Img);
-                Texture2D player1_Test3Tex = Raylib.LoadTextureFromImage(player1_Test3Img);
-                Texture2D player1_1x5Tex = Raylib.LoadTextureFromImage(player1_1x5Img);
-                Texture2D player1_1x4Tex = Raylib.LoadTextureFromImage(player1_1x4Img);
-                Texture2D player1_Test6Tex = Raylib.LoadTextureFromImage(player1_Test6Img);
+                butSinHovTex = Raylib.LoadTextureFromImage(butSinHovImg);
+                butSinOrgTex = Raylib.LoadTextureFromImage(butSinOrgImg);
+                butSinPreTex = Raylib.LoadTextureFromImage(butSinPreImg);
 
-                Texture2D player2_Test1Tex = Raylib.LoadTextureFromImage(player2_1x3Img);
-                Texture2D player2_Test2Tex = Raylib.LoadTextureFromImage(player2_1x2Img);
-                Texture2D player2_Test3Tex = Raylib.LoadTextureFromImage(player2_Test3Img);
-                Texture2D player2_Test4Tex = Raylib.LoadTextureFromImage(player2_1x5Img);
-                Texture2D player2_Test5Tex = Raylib.LoadTextureFromImage(player2_1x4Img);
-                Texture2D player2_Test6Tex = Raylib.LoadTextureFromImage(player2_Test6Img);
+                butMulHovTex = Raylib.LoadTextureFromImage(butMulHovImg);
+                butMulOrgTex = Raylib.LoadTextureFromImage(butMulOrgImg);
+                butMulPreTex = Raylib.LoadTextureFromImage(butMulPreImg);
+
+                butOptHovTex = Raylib.LoadTextureFromImage(butOptHovImg);
+                butOptOrgTex = Raylib.LoadTextureFromImage(butOptOrgImg);
+                butOptPreTex = Raylib.LoadTextureFromImage(butOptPreImg);
+
+                butCreHovTex = Raylib.LoadTextureFromImage(butCreHovImg);
+                butCreOrgTex = Raylib.LoadTextureFromImage(butCreOrgImg);
+                butCrePreTex = Raylib.LoadTextureFromImage(butCrePreImg);
+
+                butYesHovTex = Raylib.LoadTextureFromImage(butYesHovImg);
+                butYesOrgTex = Raylib.LoadTextureFromImage(butYesOrgImg);
+                butYesPreTex = Raylib.LoadTextureFromImage(butYesPreImg);
+
+                butNoHovTex = Raylib.LoadTextureFromImage(butNoHovImg);
+                butNoOrgTex = Raylib.LoadTextureFromImage(butNoOrgImg);
+                butNoPreTex = Raylib.LoadTextureFromImage(butNoPreImg);
+
+                bgTex0 = Raylib.LoadTextureFromImage(bg0);
+                bgTex1 = Raylib.LoadTextureFromImage(bg1);
+                bgTex2 = Raylib.LoadTextureFromImage(bg2);
+                bgTex3 = Raylib.LoadTextureFromImage(bg3);
+                bgTex4 = Raylib.LoadTextureFromImage(bg4);
+                bgTex5 = Raylib.LoadTextureFromImage(bg5);
+                bgTex6 = Raylib.LoadTextureFromImage(bg6);
+                bgTex7 = Raylib.LoadTextureFromImage(bg7);
+                bgTex8 = Raylib.LoadTextureFromImage(bg8);
+                bgTex9 = Raylib.LoadTextureFromImage(bg9);     
+                bgTex10 = Raylib.LoadTextureFromImage(bg10);
+                bgTex11 = Raylib.LoadTextureFromImage(bg11);
+
+                player1_1x3Tex = Raylib.LoadTextureFromImage(player1_1x3Img);
+                player1_1x2Tex = Raylib.LoadTextureFromImage(player1_1x2Img);
+                player1_Test3Tex = Raylib.LoadTextureFromImage(player1_Test3Img);
+                player1_1x5Tex = Raylib.LoadTextureFromImage(player1_1x5Img);
+                player1_1x4Tex = Raylib.LoadTextureFromImage(player1_1x4Img);
+                player1_Test6Tex = Raylib.LoadTextureFromImage(player1_Test6Img);
+
+                player2_1x3Tex = Raylib.LoadTextureFromImage(player2_1x3Img);
+                player2_1x2Tex = Raylib.LoadTextureFromImage(player2_1x2Img);
+                player2_Test3Tex = Raylib.LoadTextureFromImage(player2_Test3Img);
+                player2_1x5Tex = Raylib.LoadTextureFromImage(player2_1x5Img);
+                player2_1x4Tex = Raylib.LoadTextureFromImage(player2_1x4Img);
+                player2_Test6Tex = Raylib.LoadTextureFromImage(player2_Test6Img);
             }
         }
     }
