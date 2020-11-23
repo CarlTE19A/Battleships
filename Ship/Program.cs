@@ -119,22 +119,25 @@ namespace Ship
         {
         //Basic Rules
             int width = 1000;   //The width of the window (Ish) actully Full width = width*1.5
-            int height = width;  //The height of the window
             int FPS;            //How fast the game runs
             int gridSize = 15;  //Hard to use over arund 100   //May still be a problem with some numbers
             float audioMultiplier = 1f; //To lower / increase sound ingame
+            float musicMultiplier = 1f; //To lower / increase sound ingame
+            float sfxMultiplier = 1f; //To lower / increase sound ingame
             try
             {
                 string[] settingLoadString = File.ReadAllLines(@"Settings.txt");
-                for (int i = 0; i < settingLoadString.Length; i++)
-                {
-                    System.Console.WriteLine(settingLoadString[i]);  
-                }
+                width = Int16.Parse(settingLoadString[0]);
+                gridSize = Int16.Parse(settingLoadString[1]);
+                audioMultiplier = float.Parse(settingLoadString[2]);
+                musicMultiplier = float.Parse(settingLoadString[3]);
+                sfxMultiplier = float.Parse(settingLoadString[4]);
             }
             catch
             {
                 System.Console.WriteLine("Settings File Missing or Corrupt");
             }
+            int height = width;  //The height of the window
             int border = 20;    //Can be changed but pls dont
             int gameStage = 0;  //0 = Menu, 1 = Game
             int gamePhase = 0;  //0 = Build Ships, 1 = Play
@@ -277,20 +280,20 @@ namespace Ship
             Music musicTrack1 = Raylib.LoadMusicStream(@"Sound/background/puzzle.mp3");
             
             Raylib.PlayMusicStream(musicTrack0);
-            float musicTrack0Mult = 0.5f;
-            Raylib.SetMusicVolume(musicTrack0, 0.5f);
+            float musicTrack0Mult = 0.8f;
+            Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult);
 
             Raylib.PlayMusicStream(musicTrack1);
-            float musicTrack1Mult = 0.6f;
-            Raylib.SetMusicVolume(musicTrack1, 0.6f);
+            float musicTrack1Mult = 1f;
+            Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult);
 
             Sound shot0 = Raylib.LoadSound(@"Sound/SFX/shot.mp3");
-            float shot0Mult = 0.15f;
+            float shot0Mult = 0.24f;
             Raylib.SetSoundVolume(shot0, shot0Mult);
 
             Sound engineStart = Raylib.LoadSound(@"Sound/SFX/engineStartup.mp3");
-            float engineStartMult = 0.3f;
-            Raylib.SetSoundVolume(engineStart, 0.3f);
+            float engineStartMult = 0.5f;
+            Raylib.SetSoundVolume(engineStart, engineStartMult);
 
 
         //Load Textures
@@ -1196,22 +1199,23 @@ namespace Ship
                 //GridSizes > Restart Game
                 //8, 10, 12, 15(Standard), 18, 20, 30, 40, 60
 
-                //Audio multiplier
-                Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMultiplier);
-                Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult*audioMultiplier);
-                Raylib.SetSoundVolume(shot0, shot0Mult*audioMultiplier);
-                Raylib.SetSoundVolume(engineStart, engineStartMult*audioMultiplier);
-                
+                //Audio multiplier                
                 OptionSave();
             }
 
             void OptionSave()   //Called to change the values and add the to Settings.txt
             {
+                Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMultiplier*musicMultiplier);
+                Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult*audioMultiplier*musicMultiplier);
+                Raylib.SetSoundVolume(shot0, shot0Mult*audioMultiplier*sfxMultiplier);
+                Raylib.SetSoundVolume(engineStart, engineStartMult*audioMultiplier*sfxMultiplier);
                 List<string> settingStrings = new List<string>();
-                settingStrings.Add(width.ToString());
-                settingStrings.Add(gridSize.ToString());
-                settingStrings.Add(audioMultiplier.ToString());
-                File.AppendAllLines(@"Settings.txt", settingStrings);
+                settingStrings[0] = (width.ToString());
+                settingStrings[1] = (gridSize.ToString());
+                settingStrings[2] = (audioMultiplier.ToString());
+                settingStrings[3] = (musicMultiplier.ToString());
+                settingStrings[4] = (sfxMultiplier.ToString());
+                File.WriteAllLines(@"Settings.txt", settingStrings);
             }
 
             void WindowResize() //Because when the window is resized textures need to be recalculated   //Future
