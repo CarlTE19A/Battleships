@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Numerics;
 using System.Collections.Generic;
 using Raylib_cs;
@@ -8,28 +9,29 @@ namespace Ship
     class Ship
     {
         public int type;    //1x2, 1x3, 1x4, 1x5, 2x2
-        public bool align;  //false = vertical, true = horizontal
-        public string name;
-        public Vector2 position;
-        public Vector2 mainPositionDefined;
-        public Vector2 sidePositionDefined;
-        public static Vector2 currentPos;
-        public static bool[,] P1Hitbox;
-        public static bool[,] P2Hitbox;
+        public bool align;  //false = vertical, true = horizontal   //Future
+        public string name; //To show the player what ship it is //Future
+        public Vector2 position;    //The position of the upper left corner of ship
+        public Vector2 mainPositionDefined; //Future //To draw ships with Raylib.DrawTextureEx 
+        public Vector2 sidePositionDefined; //To show player ships on the side panel during gameplay
+        public static Vector2 currentPos;   //Temporary position calculated from Cursor Position
+        //Hitboxes using Arrays means a problem if gridSize is changed during program is running, meaning the program needs to be restarted 
+        public static bool[,] P1Hitbox;     //Where there are player 1 Ships
+        public static bool[,] P2Hitbox;     //Where there are playere 2 Ships
         public static int activePlayer = 0;   //What player is currently playing
         
-        public Ship(int _type, Vector2 _position)
+        public Ship(int _type, Vector2 _position)   //Calculates when a ship is placed
         {
             type = _type;
             position = _position;
         }
-        public void Placement()
+        public void Placement() //Called when ship placed
         {
-            position = currentPos;
-            if(activePlayer == 0){
-                if(align == false)
+           position = currentPos;   //Sets the position of the ship to the current position
+            if(activePlayer == 0){  //If player 1 is playing
+                if(align == false)  //If the ship is vertical   //Adds the positions to the hitbox 
                 {
-                    try{
+                    try{    //Try used if the player mangeges to have a ship out of borders
                         if(type == 0)
                         {
                             P1Hitbox[(int)position.X, (int)position.Y] = true;
@@ -64,13 +66,13 @@ namespace Ship
                             P1Hitbox[(int)position.X+1, (int)position.Y+1] = true;
                         }
                     }
-                    catch
+                    catch   //If try goes wrong (Ship will probely be drawn still but with no hitbox, having no effect)
                     {
                         System.Console.WriteLine("ERROR: Item out of Index");
                     }
                 }
             }
-            if(activePlayer == 1)
+            if(activePlayer == 1)   //Same as section above but player 2
             {
                 if(align == false)
                 {
@@ -116,20 +118,32 @@ namespace Ship
         static void Main(string[] args)
         {
         //Basic Rules
-            int width = 1000;   //The width of the window (Ish) width*1.5
-            int height = 1000;  //The height of the window
+            int width = 1000;   //The width of the window (Ish) actully Full width = width*1.5
+            int height = width;  //The height of the window
             int FPS;            //How fast the game runs
-            int gridSize = 10;  //Hard to use over arund 100   //May still be a problem with some numbers
+            int gridSize = 15;  //Hard to use over arund 100   //May still be a problem with some numbers
+            float audioMultiplier = 1f; //To lower / increase sound ingame
+            try
+            {
+                string[] settingLoadString = File.ReadAllLines(@"Settings.txt");
+                for (int i = 0; i < settingLoadString.Length; i++)
+                {
+                    System.Console.WriteLine(settingLoadString[i]);  
+                }
+            }
+            catch
+            {
+                System.Console.WriteLine("Settings File Missing or Corrupt");
+            }
             int border = 20;    //Can be changed but pls dont
             int gameStage = 0;  //0 = Menu, 1 = Game
             int gamePhase = 0;  //0 = Build Ships, 1 = Play
             int activeShip = 0;  //What ship player is building
-            string ship = "";   //Name of ship being built
             string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; //The english alphabet, simplest way, in use when converting numbers to letters
-            Vector2 MousePos;
-            Random generator = new Random();
-            Ship.P1Hitbox = new bool[gridSize,gridSize];
-            Ship.P2Hitbox = new bool[gridSize,gridSize];
+            Vector2 MousePos;   //Where the mouse Currently is
+            Random generator = new Random();    //All random
+            Ship.P1Hitbox = new bool[gridSize,gridSize];    //Sets the Size of Player 1 hitbox
+            Ship.P2Hitbox = new bool[gridSize,gridSize];    //Sets the Size of Player 2 hitbox
             for (int i = 0; i < gridSize; i++)
             {
                 for (int j = 0; j < gridSize; j++)
@@ -167,19 +181,14 @@ namespace Ship
             Vector2 butOptVec = new Vector2(border,border*3+normalButHeight*2);
             Vector2 butCreVec = new Vector2(border,border*4+normalButHeight*3);
 
-    //Not Used for the moment
         //Player 1
-            //bool[,] player1hitbox = new bool[gridSize, gridSize]; //If true that position has a ship on it? Should maybe be an int to know what ship being shot
-            //int[,] player1drawing = new int[gridSize, gridSize];
             Color p1Color = new Color(200,20,20,255);
             List<Ship> p1ShipList = new List<Ship>();
             
         //Player 2
-            //bool[,] player2 = new bool[gridSize, gridSize]; //If true that position has a ship on it? Should maybe be an int to know what ship being shot
             Color p2Color = new Color(190,190,0,255);
             List<Ship> p2ShipList = new List<Ship>();
-    
-    //Used Again
+
         //Cursor
             Vector2 cursorPos = new Vector2(gridSize/2, gridSize/2);
             int cursorTime = 0;
@@ -188,6 +197,9 @@ namespace Ship
             string cursorYstr = "";
 
             Color cursor = new Color(0, 200, 0, 128);
+
+        //Options
+
 
         //Images
             Image redCursorImg = Raylib.LoadImage(@"Textures/CursorRed.png");
@@ -265,15 +277,19 @@ namespace Ship
             Music musicTrack1 = Raylib.LoadMusicStream(@"Sound/background/puzzle.mp3");
             
             Raylib.PlayMusicStream(musicTrack0);
+            float musicTrack0Mult = 0.5f;
             Raylib.SetMusicVolume(musicTrack0, 0.5f);
 
             Raylib.PlayMusicStream(musicTrack1);
+            float musicTrack1Mult = 0.6f;
             Raylib.SetMusicVolume(musicTrack1, 0.6f);
 
             Sound shot0 = Raylib.LoadSound(@"Sound/SFX/shot.mp3");
-            Raylib.SetSoundVolume(shot0, 0.15f);
+            float shot0Mult = 0.15f;
+            Raylib.SetSoundVolume(shot0, shot0Mult);
 
             Sound engineStart = Raylib.LoadSound(@"Sound/SFX/engineStartup.mp3");
+            float engineStartMult = 0.3f;
             Raylib.SetSoundVolume(engineStart, 0.3f);
 
 
@@ -359,6 +375,10 @@ namespace Ship
                 else if(gameStage == 1) //Game
                 {
                     game();
+                }
+                else if(gameStage == 2) //Options
+                {
+                    Options();
                 }
                 else
                 {
@@ -1051,7 +1071,7 @@ namespace Ship
                     Raylib.UpdateMusicStream(musicTrack0);
                 }
             }
-        
+
             void Grid()
             {
                 for(int a = 0; a < gridSize; a++)
@@ -1165,7 +1185,34 @@ namespace Ship
                 }
             }
         
-            void Options(){}    //Future
+            void Options()  //Menu for changeing options
+            {   
+                //Resulutions 
+                //600 x 400 > width = 400
+                //900 x 600 > width = 600
+                //1200 x 800 > width = 800
+                //1500 x 1000 > width = 1000
+
+                //GridSizes > Restart Game
+                //8, 10, 12, 15(Standard), 18, 20, 30, 40, 60
+
+                //Audio multiplier
+                Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMultiplier);
+                Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult*audioMultiplier);
+                Raylib.SetSoundVolume(shot0, shot0Mult*audioMultiplier);
+                Raylib.SetSoundVolume(engineStart, engineStartMult*audioMultiplier);
+                
+                OptionSave();
+            }
+
+            void OptionSave()   //Called to change the values and add the to Settings.txt
+            {
+                List<string> settingStrings = new List<string>();
+                settingStrings.Add(width.ToString());
+                settingStrings.Add(gridSize.ToString());
+                settingStrings.Add(audioMultiplier.ToString());
+                File.AppendAllLines(@"Settings.txt", settingStrings);
+            }
 
             void WindowResize() //Because when the window is resized textures need to be recalculated   //Future
             {
