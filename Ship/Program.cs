@@ -122,14 +122,18 @@ namespace Ship
             int height = width;  //The height of the window
             int FPS;            //How fast the game runs
             int gridSize = 15;  //Hard to use over arund 100   //May still be a problem with some numbers
-            float audioMultiplier = 1f; //To lower / increase sound ingame
+            float audioMult = 1f; //To lower / increase sound ingame
+            float sfxMult = 1f;
+            float musicMult = 1f;
             try
             {
                 string[] settingLoadString = File.ReadAllLines(@"Settings.txt");
-                for (int i = 0; i < settingLoadString.Length; i++)
-                {
-                    System.Console.WriteLine(settingLoadString[i]);  
-                }
+                width = Int16.Parse(settingLoadString[0]);
+                gridSize = Int16.Parse(settingLoadString[1]);
+                audioMult = float.Parse(settingLoadString[2]);
+                sfxMult = float.Parse(settingLoadString[3]);
+                musicMult = float.Parse(settingLoadString[4]);
+
             }
             catch
             {
@@ -280,22 +284,23 @@ namespace Ship
             
             Raylib.PlayMusicStream(musicTrack0);
             float musicTrack0Mult = 0.5f;
-            Raylib.SetMusicVolume(musicTrack0, 0.5f);
+            Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult * musicMult * audioMult);
 
             Raylib.PlayMusicStream(musicTrack1);
             float musicTrack1Mult = 0.6f;
-            Raylib.SetMusicVolume(musicTrack1, 0.6f);
+            Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult * musicMult * audioMult);
 
             Raylib.PlayMusicStream(computerBeep);
-            Raylib.SetMusicVolume(computerBeep, 0.2f);
+            float computerBeepMult = 0.2f;
+            Raylib.SetMusicVolume(computerBeep, computerBeepMult * musicMult * audioMult);
 
             Sound shot0 = Raylib.LoadSound(@"Sound/SFX/shot.mp3");
             float shot0Mult = 0.15f;
-            Raylib.SetSoundVolume(shot0, shot0Mult);
+            Raylib.SetSoundVolume(shot0, shot0Mult * sfxMult * audioMult);
 
             Sound engineStart = Raylib.LoadSound(@"Sound/SFX/engineStartup.mp3");
             float engineStartMult = 0.3f;
-            Raylib.SetSoundVolume(engineStart, 0.3f);
+            Raylib.SetSoundVolume(engineStart, engineStartMult * sfxMult * audioMult);
 
         //Load Textures
             Texture2D redCursorTex = Raylib.LoadTextureFromImage(redCursorImg);
@@ -391,20 +396,13 @@ namespace Ship
                         gameStage = 0;
                         menu();
                     }
-                    Music();
-                    Raylib.EndDrawing();
                 }
-                catch{
+                catch
+                {
                     CritError();
-                else if(gameStage == 2) //Options
-                {
-                    Options();
                 }
-                else
-                {
-                    gameStage = 0;
-                    menu();
-                }
+                Music();
+                Raylib.EndDrawing();
             }
             
             void menu()
@@ -1215,21 +1213,25 @@ namespace Ship
                 //8, 10, 12, 15(Standard), 18, 20, 30, 40, 60
 
                 //Audio multiplier
-                Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMultiplier);
-                Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult*audioMultiplier);
-                Raylib.SetSoundVolume(shot0, shot0Mult*audioMultiplier);
-                Raylib.SetSoundVolume(engineStart, engineStartMult*audioMultiplier);
+                Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMult*musicMult);
+                Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult*audioMult*musicMult);
+                Raylib.SetMusicVolume(computerBeep, computerBeepMult * musicMult * audioMult);
+                Raylib.SetSoundVolume(shot0, shot0Mult*audioMult*sfxMult);
+                Raylib.SetSoundVolume(engineStart, engineStartMult*audioMult*sfxMult);
                 
                 OptionSave();
             }
 
             void OptionSave()   //Called to change the values and add the to Settings.txt
             {
-                List<string> settingStrings = new List<string>();
-                settingStrings.Add(width.ToString());
-                settingStrings.Add(gridSize.ToString());
-                settingStrings.Add(audioMultiplier.ToString());
-                File.AppendAllLines(@"Settings.txt", settingStrings);
+                string[] settingStrings = new string[5];
+                settingStrings[0] = width.ToString();
+                settingStrings[1] = gridSize.ToString();
+                settingStrings[2] = audioMult.ToString() + "f";
+                settingStrings[3] = sfxMult.ToString() + "f";
+                settingStrings[4] = musicMult.ToString() + "f";
+                
+                File.WriteAllLines(@"Settings.txt", settingStrings);
             }
 
             void WindowResize() //Because when the window is resized textures need to be recalculated   //Future
@@ -1446,28 +1448,7 @@ namespace Ship
 
             void Test()
             {
-                System.Console.WriteLine("Player1");
-                for (int i = 0; i < gridSize; i++)
-                {
-                  for (int j = 0; j < gridSize; j++)
-                  {
-                      Console.Write(Ship.P1Hitbox[j,i] + " ");
-                  }
-                  System.Console.WriteLine("");
-                }
-            
-                System.Console.WriteLine("");
-                System.Console.WriteLine("Player2");
-                for (int i = 0; i < gridSize; i++)
-                {
-                  for (int j = 0; j < gridSize; j++)
-                  {
-                      Console.Write(Ship.P2Hitbox[j,i] + " ");
-                  }
-                  System.Console.WriteLine("");
-                }
-            
-                System.Console.WriteLine("");
+                
             }
 
             void CritError()
@@ -1493,5 +1474,6 @@ namespace Ship
 //Meny Knappar, nedre Högra hörnet
 //Shooting (Where you have shoot at oppenent and where opponent have shoot at you)
 //How many ships you are Should use of each type
+//Save The Option floats (They become 1 right now)
 
 //freakyNews to be used when waiting for next player?
