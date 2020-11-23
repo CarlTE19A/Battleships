@@ -119,12 +119,11 @@ namespace Ship
             int width = 1000;   //The width of the window (Ish) width*1.5
             int height = 1000;  //The height of the window
             int FPS;            //How fast the game runs
-            int gridSize = 10;  //Hard to use over arund 100   //May still be a problem with some numbers
+            int gridSize = 20;  //Hard to use over arund 100   //May still be a problem with some numbers
             int border = 20;    //Can be changed but pls dont
             int gameStage = 0;  //0 = Menu, 1 = Game
             int gamePhase = 0;  //0 = Build Ships, 1 = Play
             int activeShip = 0;  //What ship player is building
-            string ship = "";   //Name of ship being built
             string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; //The english alphabet, simplest way, in use when converting numbers to letters
             Vector2 MousePos;
             Random generator = new Random();
@@ -263,6 +262,8 @@ namespace Ship
             Raylib.InitAudioDevice();
             Music musicTrack0 = Raylib.LoadMusicStream(@"Sound/background/spaceEmergency.mp3");
             Music musicTrack1 = Raylib.LoadMusicStream(@"Sound/background/puzzle.mp3");
+
+            Music computerBeep = Raylib.LoadMusicStream(@"Sound/SFX/computerChirp.mp3");
             
             Raylib.PlayMusicStream(musicTrack0);
             Raylib.SetMusicVolume(musicTrack0, 0.5f);
@@ -270,12 +271,14 @@ namespace Ship
             Raylib.PlayMusicStream(musicTrack1);
             Raylib.SetMusicVolume(musicTrack1, 0.6f);
 
+            Raylib.PlayMusicStream(computerBeep);
+            Raylib.SetMusicVolume(computerBeep, 0.2f);
+
             Sound shot0 = Raylib.LoadSound(@"Sound/SFX/shot.mp3");
             Raylib.SetSoundVolume(shot0, 0.15f);
 
             Sound engineStart = Raylib.LoadSound(@"Sound/SFX/engineStartup.mp3");
             Raylib.SetSoundVolume(engineStart, 0.3f);
-
 
         //Load Textures
             Texture2D redCursorTex = Raylib.LoadTextureFromImage(redCursorImg);
@@ -338,35 +341,45 @@ namespace Ship
             Texture2D player2_1x4Tex = Raylib.LoadTextureFromImage(player2_1x4Img);
             Texture2D player2_Test6Tex = Raylib.LoadTextureFromImage(player2_Test6Img);
             WindowResize();
-
             while(!Raylib.WindowShouldClose())                          //Game Loop
             {
-                Raylib.SetExitKey(0);       //Dont exit with Esc
-                Raylib.BeginDrawing();      //Start drawing (Including everything to be able to draw at any point)
-                Raylib.ClearBackground(Color.BLACK);    //Basic Background
-                FPS = Raylib.GetFPS();      //The FPS
-                Raylib.DrawText($"FPS: {FPS}", width-80, height-18, 16, Color.WHITE);   //Draws FPS, remove?
-                MousePos = Raylib.GetMousePosition();
-                if(Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
-                {
-                    gameStage = 0;
-                    System.Console.WriteLine("INFO : MENU Activated");
+                try{
+                    Raylib.SetExitKey(0);       //Dont exit with Esc
+                    Raylib.BeginDrawing();      //Start drawing (Including everything to be able to draw at any point)
+                    Raylib.ClearBackground(Color.BLACK);    //Basic Background
+                    FPS = Raylib.GetFPS();      //The FPS
+                    Raylib.DrawText($"FPS: {FPS}", width-80, height-18, 16, Color.WHITE);   //Draws FPS, remove?
+                    MousePos = Raylib.GetMousePosition();
+                    if(Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
+                    {
+                        gameStage = 0;
+                        System.Console.WriteLine("INFO : MENU Activated");
+                    }
+                    if(gameStage == 0)
+                    {
+                        menu();
+                    }
+                    else if(gameStage == 1) //Game
+                    {
+                        game();
+                    }
+                    else if(gameStage == 2) //Game
+                    {
+                        Options();
+                        gameStage = 0;
+                        menu();
+                    }
+                    else
+                    {
+                        gameStage = 0;
+                        menu();
+                    }
+                    Music();
+                    Raylib.EndDrawing();
                 }
-                if(gameStage == 0)
-                {
-                    menu();
+                catch{
+                    CritError();
                 }
-                else if(gameStage == 1) //Game
-                {
-                    game();
-                }
-                else
-                {
-                    gameStage = 0;
-                    menu();
-                }
-                Music();
-                Raylib.EndDrawing();
             }
             
             void menu()
@@ -1404,7 +1417,16 @@ namespace Ship
             
                 System.Console.WriteLine("");
             }
+
+            void CritError()
+            {
+                System.Console.WriteLine("ERROR : CRITICAL ERROR");
+                Raylib.ClearBackground(Color.BLUE);
+                Raylib.DrawText("THERE HAS BEEN A CRITICAL ERROR", border, border, width/20, Color.RED);
+                Raylib.UpdateMusicStream(computerBeep);
+            }
         }
+        
     }
 }
 
