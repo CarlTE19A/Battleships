@@ -1516,3 +1516,4 @@ namespace Ship
 //Save The Option floats (They become 1 right now)
 
 //freakyNews to be used when waiting for next player?
+//All Images and Sounds are made by other people
