@@ -122,9 +122,9 @@ namespace Ship
             int FPS;            //How fast the game runs
             int gridSize = 15;  //Hard to use over arund 100   //May still be a problem with some numbers
 
-            float audioMult = 1f; //To lower / increase sound ingame
-            float sfxMult = 1f;
-            float musicMult = 1f;
+            float audioMult = 0.5f; //To lower / increase sound ingame
+            float sfxMult = 0.5f;
+            float musicMult = 0.5f;
             try
             {
                 string[] settingLoadString = File.ReadAllLines(@"Settings.txt");
@@ -370,6 +370,10 @@ namespace Ship
                     {
                         gameStage = 0;
                         System.Console.WriteLine("INFO : MENU Activated");
+                    }
+                    if(Raylib.IsKeyPressed(KeyboardKey.KEY_RIGHT_SHIFT))
+                    {
+                        Test();
                     }
                     if(gameStage == 0)
                     {
@@ -1233,7 +1237,7 @@ namespace Ship
                 }
             }
             
-            void ScreenString()
+            void ScreenString() //When button left or right is pressed in the Options
             {
                 if(opScreenInt == 0)    //Resulutions
                 {
@@ -1265,6 +1269,10 @@ namespace Ship
                 settingStrings[2] = audioMult.ToString();
                 settingStrings[3] = sfxMult.ToString();
                 settingStrings[4] = musicMult.ToString();
+                for(int i = 0; i < settingStrings.Length; i++)
+                {
+                    System.Console.WriteLine(i + settingStrings[i]);
+                }
                 
                 File.WriteAllLines(@"Settings.txt", settingStrings);
                 Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMult*musicMult);
@@ -1487,7 +1495,7 @@ namespace Ship
 
             void Test()
             {
-                
+
             }
 
             void CritError()
@@ -1513,7 +1521,6 @@ namespace Ship
 //Meny Knappar, nedre Högra hörnet
 //Shooting (Where you have shoot at oppenent and where opponent have shoot at you)
 //How many ships you are Should use of each type
-//Save The Option floats (They become 1 right now)
-
 //freakyNews to be used when waiting for next player?
+
 //All Images and Sounds are made by other people
