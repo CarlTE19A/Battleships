@@ -119,9 +119,9 @@ namespace Ship
         {
         //Basic Rules
             int width = 1000;   //The width of the window (Ish) actully Full width = width*1.5
-            int height = width;  //The height of the window
             int FPS;            //How fast the game runs
             int gridSize = 15;  //Hard to use over arund 100   //May still be a problem with some numbers
+
             float audioMult = 1f; //To lower / increase sound ingame
             float sfxMult = 1f;
             float musicMult = 1f;
@@ -139,6 +139,7 @@ namespace Ship
             {
                 System.Console.WriteLine("Settings File Missing or Corrupt");
             }
+            int height = width;  //The height of the window
             int border = 20;    //Can be changed but pls dont
             int gameStage = 0;  //0 = Menu, 1 = Game
             int gamePhase = 0;  //0 = Build Ships, 1 = Play
@@ -202,7 +203,37 @@ namespace Ship
 
             Color cursor = new Color(0, 200, 0, 128);
 
-        //Options
+        //Options  //The prefix op stands for op-tions
+            int optionBorder = width/50;
+            Color optionBackColor = new Color(10,10,10,200);
+            Color optionOrgColor = new Color(150, 150, 150, 255);
+            Color optionHovColor = new Color(100, 100, 100, 255);
+            Color optionPreColor = new Color(70, 70, 70, 255);
+            Vector2 optionsPos = new Vector2(optionBorder*width/100, 0);
+            Vector2 opContainerSize = new Vector2((width + width/2) - (optionsPos.X*2)-(optionBorder*2), height/6);
+            
+            Vector2 opGridPos = new Vector2(optionsPos.X + optionBorder, optionsPos.Y + optionBorder);
+            Rectangle opGridRec = new Rectangle(optionBorder + opGridPos.X, 2*optionBorder + opGridPos.Y, opContainerSize.X - optionBorder*2, opContainerSize.Y - optionBorder*3);
+            Color optionGridColor = optionOrgColor;
+
+            Vector2 opScreenPos = new Vector2(optionsPos.X + optionBorder, optionsPos.Y + 2*optionBorder + height/6);
+            Rectangle opScreenRec = new Rectangle(optionBorder + opScreenPos.X, 2*optionBorder + opScreenPos.Y, opContainerSize.X - optionBorder*2, opContainerSize.Y - optionBorder*3);
+            Color optionScreenColor = optionOrgColor;
+
+            Vector2 opAudioPos = new Vector2(optionsPos.X + optionBorder, optionsPos.Y + 3*optionBorder + 2*(height/6));
+            Color optionAudioColor = optionOrgColor;
+
+            Vector2 opMusicPos = new Vector2(optionsPos.X + optionBorder, optionsPos.Y + 4*optionBorder + 3*(height/6));
+            Color optionMusicColor = optionOrgColor;
+
+            Vector2 opSfxPos = new Vector2(optionsPos.X + optionBorder, optionsPos.Y + 5*optionBorder + 4*(height/6));
+            Color optionSfxColor = optionOrgColor;
+            
+            int opGridInt = 0;
+            int opScreenInt = 3;
+            string opScreenString = $"Resulution : {width*1.5}x{width}";
+            int opScreenStrWidth = 0;
+            int opStrHeight = 0;
 
 
         //Images
@@ -303,65 +334,28 @@ namespace Ship
             Raylib.SetSoundVolume(engineStart, engineStartMult * sfxMult * audioMult);
 
         //Load Textures
-            Texture2D redCursorTex = Raylib.LoadTextureFromImage(redCursorImg);
-            Texture2D greenCursorTex = Raylib.LoadTextureFromImage(greenCursorImg);
-            Texture2D backGroundTex = Raylib.LoadTextureFromImage(backGroundImg);
-            Texture2D backGroundMenuTex = Raylib.LoadTextureFromImage(backGroundMenuImg);
+            Texture2D redCursorTex;     Texture2D greenCursorTex;
+            Texture2D backGroundTex;    Texture2D backGroundMenuTex;
             
-            Texture2D butMenHovTex = Raylib.LoadTextureFromImage(butMenHovImg);
-            Texture2D butMenOrgTex = Raylib.LoadTextureFromImage(butMenOrgImg);
-            Texture2D butMenPreTex = Raylib.LoadTextureFromImage(butMenPreImg);
+            Texture2D butSinHovTex; Texture2D butSinOrgTex; Texture2D butSinPreTex;
+            Texture2D butMulHovTex; Texture2D butMulOrgTex; Texture2D butMulPreTex;
+            Texture2D butOptHovTex; Texture2D butOptOrgTex; Texture2D butOptPreTex;
+            Texture2D butCreHovTex; Texture2D butCreOrgTex; Texture2D butCrePreTex;
 
-            Texture2D butSinHovTex = Raylib.LoadTextureFromImage(butSinHovImg);
-            Texture2D butSinOrgTex = Raylib.LoadTextureFromImage(butSinOrgImg);
-            Texture2D butSinPreTex = Raylib.LoadTextureFromImage(butSinPreImg);
+            Texture2D butMenHovTex; Texture2D butMenOrgTex; Texture2D butMenPreTex;
+            Texture2D butYesHovTex; Texture2D butYesOrgTex; Texture2D butYesPreTex;
+            Texture2D butNoHovTex;  Texture2D butNoOrgTex;  Texture2D butNoPreTex;
 
-            Texture2D butMulHovTex = Raylib.LoadTextureFromImage(butMulHovImg);
-            Texture2D butMulOrgTex = Raylib.LoadTextureFromImage(butMulOrgImg);
-            Texture2D butMulPreTex = Raylib.LoadTextureFromImage(butMulPreImg);
+            Texture2D bgTex0;   Texture2D bgTex1;   Texture2D bgTex2;
+            Texture2D bgTex3;   Texture2D bgTex4;   Texture2D bgTex5;
+            Texture2D bgTex6;   Texture2D bgTex7;   Texture2D bgTex8;
+            Texture2D bgTex9;   Texture2D bgTex10;  Texture2D bgTex11;
 
-            Texture2D butOptHovTex = Raylib.LoadTextureFromImage(butOptHovImg);
-            Texture2D butOptOrgTex = Raylib.LoadTextureFromImage(butOptOrgImg);
-            Texture2D butOptPreTex = Raylib.LoadTextureFromImage(butOptPreImg);
+            Texture2D player1_1x3Tex;   Texture2D player1_1x2Tex;   Texture2D player1_2x2Tex;
+            Texture2D player1_1x5Tex;   Texture2D player1_1x4Tex;   Texture2D player1_Test6Tex;
 
-            Texture2D butCreHovTex = Raylib.LoadTextureFromImage(butCreHovImg);
-            Texture2D butCreOrgTex = Raylib.LoadTextureFromImage(butCreOrgImg);
-            Texture2D butCrePreTex = Raylib.LoadTextureFromImage(butCrePreImg);
-
-            Texture2D butYesHovTex = Raylib.LoadTextureFromImage(butYesHovImg);
-            Texture2D butYesOrgTex = Raylib.LoadTextureFromImage(butYesOrgImg);
-            Texture2D butYesPreTex = Raylib.LoadTextureFromImage(butYesPreImg);
-
-            Texture2D butNoHovTex = Raylib.LoadTextureFromImage(butNoHovImg);
-            Texture2D butNoOrgTex = Raylib.LoadTextureFromImage(butNoOrgImg);
-            Texture2D butNoPreTex = Raylib.LoadTextureFromImage(butNoPreImg);
-
-            Texture2D bgTex0 = Raylib.LoadTextureFromImage(bg0);
-            Texture2D bgTex1 = Raylib.LoadTextureFromImage(bg1);
-            Texture2D bgTex2 = Raylib.LoadTextureFromImage(bg2);
-            Texture2D bgTex3 = Raylib.LoadTextureFromImage(bg3);
-            Texture2D bgTex4 = Raylib.LoadTextureFromImage(bg4);
-            Texture2D bgTex5 = Raylib.LoadTextureFromImage(bg5);
-            Texture2D bgTex6 = Raylib.LoadTextureFromImage(bg6);
-            Texture2D bgTex7 = Raylib.LoadTextureFromImage(bg7);
-            Texture2D bgTex8 = Raylib.LoadTextureFromImage(bg8);
-            Texture2D bgTex9 = Raylib.LoadTextureFromImage(bg9);     
-            Texture2D bgTex10 = Raylib.LoadTextureFromImage(bg10);
-            Texture2D bgTex11 = Raylib.LoadTextureFromImage(bg11);
-
-            Texture2D player1_1x3Tex = Raylib.LoadTextureFromImage(player1_1x3Img);
-            Texture2D player1_1x2Tex = Raylib.LoadTextureFromImage(player1_1x2Img);
-            Texture2D player1_2x2Tex = Raylib.LoadTextureFromImage(player1_2x2Img);
-            Texture2D player1_1x5Tex = Raylib.LoadTextureFromImage(player1_1x5Img);
-            Texture2D player1_1x4Tex = Raylib.LoadTextureFromImage(player1_1x4Img);
-            Texture2D player1_Test6Tex = Raylib.LoadTextureFromImage(player1_Test6Img);
-
-            Texture2D player2_1x3Tex = Raylib.LoadTextureFromImage(player2_1x3Img);
-            Texture2D player2_1x2Tex = Raylib.LoadTextureFromImage(player2_1x2Img);
-            Texture2D player2_2x2Tex = Raylib.LoadTextureFromImage(player2_2x2Img);
-            Texture2D player2_1x5Tex = Raylib.LoadTextureFromImage(player2_1x5Img);
-            Texture2D player2_1x4Tex = Raylib.LoadTextureFromImage(player2_1x4Img);
-            Texture2D player2_Test6Tex = Raylib.LoadTextureFromImage(player2_Test6Img);
+            Texture2D player2_1x3Tex;   Texture2D player2_1x2Tex;   Texture2D player2_2x2Tex;
+            Texture2D player2_1x5Tex;   Texture2D player2_1x4Tex;   Texture2D player2_Test6Tex;
             WindowResize();
             while(!Raylib.WindowShouldClose())                          //Game Loop
             {
@@ -387,9 +381,9 @@ namespace Ship
                     }
                     else if(gameStage == 2) //Game
                     {
+                        opScreenStrWidth = Raylib.MeasureText(opScreenString, width/11);
+                        opStrHeight = (int)opContainerSize.Y - (width/11) - optionBorder;
                         Options();
-                        gameStage = 0;
-                        menu();
                     }
                     else
                     {
@@ -1203,6 +1197,25 @@ namespace Ship
         
             void Options()  //Menu for changeing options
             {   
+                if(opGridInt == 0)    //Grid
+                {
+
+                }
+
+                Raylib.DrawTexture(backGroundMenuTex,0,0,Color.WHITE);
+
+                Raylib.DrawRectangle((int)opGridPos.X, (int)opGridPos.Y, (int)opContainerSize.X, (int)opContainerSize.Y, optionOrgColor);
+                Raylib.DrawRectangleLinesEx(opGridRec, 5, Color.RED);
+
+                Raylib.DrawRectangle((int)opScreenPos.X, (int)opScreenPos.Y, (int)opContainerSize.X, (int)opContainerSize.Y, optionOrgColor);
+                Raylib.DrawRectangleLinesEx(opScreenRec, 5, Color.RED);
+                Raylib.DrawText(opScreenString, (int)(width*0.75)-opScreenStrWidth/2, (int)opScreenPos.Y+opStrHeight, width/11, Color.WHITE);
+
+                Raylib.DrawRectangle((int)opAudioPos.X, (int)opAudioPos.Y, (int)opContainerSize.X, (int)opContainerSize.Y, optionOrgColor);
+                Raylib.DrawRectangle((int)opMusicPos.X, (int)opMusicPos.Y, (int)opContainerSize.X, (int)opContainerSize.Y, optionOrgColor);
+                Raylib.DrawRectangle((int)opSfxPos.X, (int)opSfxPos.Y, (int)opContainerSize.X, (int)opContainerSize.Y, optionOrgColor);
+                
+
                 //Resulutions 
                 //600 x 400 > width = 400
                 //900 x 600 > width = 600
@@ -1213,13 +1226,35 @@ namespace Ship
                 //8, 10, 12, 15(Standard), 18, 20, 30, 40, 60
 
                 //Audio multiplier
-                Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMult*musicMult);
-                Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult*audioMult*musicMult);
-                Raylib.SetMusicVolume(computerBeep, computerBeepMult * musicMult * audioMult);
-                Raylib.SetSoundVolume(shot0, shot0Mult*audioMult*sfxMult);
-                Raylib.SetSoundVolume(engineStart, engineStartMult*audioMult*sfxMult);
                 
-                OptionSave();
+                if(Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
+                {
+                    OptionSave();
+                }
+            }
+            
+            void ScreenString()
+            {
+                if(opScreenInt == 0)    //Resulutions
+                {
+                    opScreenString = "Resulution : 600x400";
+                    opScreenStrWidth = Raylib.MeasureText(opScreenString, width/11);
+                }
+                else if(opScreenInt == 1)
+                {
+                    opScreenString = "Resulution : 900x600";
+                    opScreenStrWidth = Raylib.MeasureText(opScreenString, width/11);
+                }
+                else if(opScreenInt == 2)
+                {
+                    opScreenString = "Resulution : 1200x800";
+                    opScreenStrWidth = Raylib.MeasureText(opScreenString, width/11);
+                }
+                else if(opScreenInt == 3)
+                {
+                    opScreenString = "Resulution : 1500x1000";
+                    opScreenStrWidth = Raylib.MeasureText(opScreenString, width/11);
+                }
             }
 
             void OptionSave()   //Called to change the values and add the to Settings.txt
@@ -1227,11 +1262,17 @@ namespace Ship
                 string[] settingStrings = new string[5];
                 settingStrings[0] = width.ToString();
                 settingStrings[1] = gridSize.ToString();
-                settingStrings[2] = audioMult.ToString() + "f";
-                settingStrings[3] = sfxMult.ToString() + "f";
-                settingStrings[4] = musicMult.ToString() + "f";
+                settingStrings[2] = audioMult.ToString();
+                settingStrings[3] = sfxMult.ToString();
+                settingStrings[4] = musicMult.ToString();
                 
                 File.WriteAllLines(@"Settings.txt", settingStrings);
+                Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMult*musicMult);
+                Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult*audioMult*musicMult);
+                Raylib.SetMusicVolume(computerBeep, computerBeepMult * musicMult * audioMult);
+                Raylib.SetSoundVolume(shot0, shot0Mult*audioMult*sfxMult);
+                Raylib.SetSoundVolume(engineStart, engineStartMult*audioMult*sfxMult);
+                gameStage = 0;
             }
 
             void WindowResize() //Because when the window is resized textures need to be recalculated   //Future
@@ -1416,8 +1457,6 @@ namespace Ship
                             Raylib.DrawTextureEx(player1_2x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
                         }
                     }
-                    //gridSidePos.X = a*((width-(border*2))/gridSize)/2 + width;
-                    //gridSidePos.Y = b*((height-(border*2))/gridSize)/2;
                 }
                 if(Ship.activePlayer == 1 && gamePhase == 1){
                     for(int i = 0; i < p2ShipList.Count; i++)
