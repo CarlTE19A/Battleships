@@ -121,17 +121,19 @@ namespace Ship
             int width = 1000;   //The width of the window (Ish) actully Full width = width*1.5
             int FPS;            //How fast the game runs
             int gridSize = 15;  //Hard to use over arund 100   //May still be a problem with some numbers
-            float audioMultiplier = 1f; //To lower / increase sound ingame
-            float musicMultiplier = 1f; //To lower / increase sound ingame
-            float sfxMultiplier = 1f; //To lower / increase sound ingame
+
+            float audioMult = 1f; //To lower / increase sound ingame
+            float sfxMult = 1f;
+            float musicMult = 1f;
             try
             {
                 string[] settingLoadString = File.ReadAllLines(@"Settings.txt");
                 width = Int16.Parse(settingLoadString[0]);
                 gridSize = Int16.Parse(settingLoadString[1]);
-                audioMultiplier = float.Parse(settingLoadString[2]);
-                musicMultiplier = float.Parse(settingLoadString[3]);
-                sfxMultiplier = float.Parse(settingLoadString[4]);
+                audioMult = float.Parse(settingLoadString[2]);
+                sfxMult = float.Parse(settingLoadString[3]);
+                musicMult = float.Parse(settingLoadString[4]);
+
             }
             catch
             {
@@ -278,23 +280,28 @@ namespace Ship
             Raylib.InitAudioDevice();
             Music musicTrack0 = Raylib.LoadMusicStream(@"Sound/background/spaceEmergency.mp3");
             Music musicTrack1 = Raylib.LoadMusicStream(@"Sound/background/puzzle.mp3");
+
+            Music computerBeep = Raylib.LoadMusicStream(@"Sound/SFX/computerChirp.mp3");
             
             Raylib.PlayMusicStream(musicTrack0);
-            float musicTrack0Mult = 0.8f;
-            Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult);
+            float musicTrack0Mult = 0.5f;
+            Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult * musicMult * audioMult);
 
             Raylib.PlayMusicStream(musicTrack1);
-            float musicTrack1Mult = 1f;
-            Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult);
+            float musicTrack1Mult = 0.6f;
+            Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult * musicMult * audioMult);
+
+            Raylib.PlayMusicStream(computerBeep);
+            float computerBeepMult = 0.2f;
+            Raylib.SetMusicVolume(computerBeep, computerBeepMult * musicMult * audioMult);
 
             Sound shot0 = Raylib.LoadSound(@"Sound/SFX/shot.mp3");
-            float shot0Mult = 0.24f;
-            Raylib.SetSoundVolume(shot0, shot0Mult);
+            float shot0Mult = 0.15f;
+            Raylib.SetSoundVolume(shot0, shot0Mult * sfxMult * audioMult);
 
             Sound engineStart = Raylib.LoadSound(@"Sound/SFX/engineStartup.mp3");
-            float engineStartMult = 0.5f;
-            Raylib.SetSoundVolume(engineStart, engineStartMult);
-
+            float engineStartMult = 0.3f;
+            Raylib.SetSoundVolume(engineStart, engineStartMult * sfxMult * audioMult);
 
         //Load Textures
             Texture2D redCursorTex = Raylib.LoadTextureFromImage(redCursorImg);
@@ -357,36 +364,43 @@ namespace Ship
             Texture2D player2_1x4Tex = Raylib.LoadTextureFromImage(player2_1x4Img);
             Texture2D player2_Test6Tex = Raylib.LoadTextureFromImage(player2_Test6Img);
             WindowResize();
-
             while(!Raylib.WindowShouldClose())                          //Game Loop
             {
-                Raylib.SetExitKey(0);       //Dont exit with Esc
-                Raylib.BeginDrawing();      //Start drawing (Including everything to be able to draw at any point)
-                Raylib.ClearBackground(Color.BLACK);    //Basic Background
-                FPS = Raylib.GetFPS();      //The FPS
-                Raylib.DrawText($"FPS: {FPS}", width-80, height-18, 16, Color.WHITE);   //Draws FPS, remove?
-                MousePos = Raylib.GetMousePosition();
-                if(Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
-                {
-                    gameStage = 0;
-                    System.Console.WriteLine("INFO : MENU Activated");
+                try{
+                    Raylib.SetExitKey(0);       //Dont exit with Esc
+                    Raylib.BeginDrawing();      //Start drawing (Including everything to be able to draw at any point)
+                    Raylib.ClearBackground(Color.BLACK);    //Basic Background
+                    FPS = Raylib.GetFPS();      //The FPS
+                    Raylib.DrawText($"FPS: {FPS}", width-80, height-18, 16, Color.WHITE);   //Draws FPS, remove?
+                    MousePos = Raylib.GetMousePosition();
+                    if(Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
+                    {
+                        gameStage = 0;
+                        System.Console.WriteLine("INFO : MENU Activated");
+                    }
+                    if(gameStage == 0)
+                    {
+                        menu();
+                    }
+                    else if(gameStage == 1) //Game
+                    {
+                        game();
+                    }
+                    else if(gameStage == 2) //Game
+                    {
+                        Options();
+                        gameStage = 0;
+                        menu();
+                    }
+                    else
+                    {
+                        gameStage = 0;
+                        menu();
+                    }
                 }
-                if(gameStage == 0)
+                catch
                 {
-                    menu();
-                }
-                else if(gameStage == 1) //Game
-                {
-                    game();
-                }
-                else if(gameStage == 2) //Options
-                {
-                    Options();
-                }
-                else
-                {
-                    gameStage = 0;
-                    menu();
+                    CritError();
                 }
                 Music();
                 Raylib.EndDrawing();
@@ -1199,22 +1213,25 @@ namespace Ship
                 //GridSizes > Restart Game
                 //8, 10, 12, 15(Standard), 18, 20, 30, 40, 60
 
-                //Audio multiplier                
+                //Audio multiplier
+                Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMult*musicMult);
+                Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult*audioMult*musicMult);
+                Raylib.SetMusicVolume(computerBeep, computerBeepMult * musicMult * audioMult);
+                Raylib.SetSoundVolume(shot0, shot0Mult*audioMult*sfxMult);
+                Raylib.SetSoundVolume(engineStart, engineStartMult*audioMult*sfxMult);
+                
                 OptionSave();
             }
 
             void OptionSave()   //Called to change the values and add the to Settings.txt
             {
-                Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMultiplier*musicMultiplier);
-                Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult*audioMultiplier*musicMultiplier);
-                Raylib.SetSoundVolume(shot0, shot0Mult*audioMultiplier*sfxMultiplier);
-                Raylib.SetSoundVolume(engineStart, engineStartMult*audioMultiplier*sfxMultiplier);
-                List<string> settingStrings = new List<string>();
-                settingStrings[0] = (width.ToString());
-                settingStrings[1] = (gridSize.ToString());
-                settingStrings[2] = (audioMultiplier.ToString());
-                settingStrings[3] = (musicMultiplier.ToString());
-                settingStrings[4] = (sfxMultiplier.ToString());
+                string[] settingStrings = new string[5];
+                settingStrings[0] = width.ToString();
+                settingStrings[1] = gridSize.ToString();
+                settingStrings[2] = audioMult.ToString() + "f";
+                settingStrings[3] = sfxMult.ToString() + "f";
+                settingStrings[4] = musicMult.ToString() + "f";
+                
                 File.WriteAllLines(@"Settings.txt", settingStrings);
             }
 
@@ -1432,30 +1449,18 @@ namespace Ship
 
             void Test()
             {
-                System.Console.WriteLine("Player1");
-                for (int i = 0; i < gridSize; i++)
-                {
-                  for (int j = 0; j < gridSize; j++)
-                  {
-                      Console.Write(Ship.P1Hitbox[j,i] + " ");
-                  }
-                  System.Console.WriteLine("");
-                }
-            
-                System.Console.WriteLine("");
-                System.Console.WriteLine("Player2");
-                for (int i = 0; i < gridSize; i++)
-                {
-                  for (int j = 0; j < gridSize; j++)
-                  {
-                      Console.Write(Ship.P2Hitbox[j,i] + " ");
-                  }
-                  System.Console.WriteLine("");
-                }
-            
-                System.Console.WriteLine("");
+                
+            }
+
+            void CritError()
+            {
+                System.Console.WriteLine("ERROR : CRITICAL ERROR");
+                Raylib.ClearBackground(Color.BLUE);
+                Raylib.DrawText("THERE HAS BEEN A CRITICAL ERROR", border, border, width/20, Color.RED);
+                Raylib.UpdateMusicStream(computerBeep);
             }
         }
+        
     }
 }
 
@@ -1470,5 +1475,6 @@ namespace Ship
 //Meny Knappar, nedre Högra hörnet
 //Shooting (Where you have shoot at oppenent and where opponent have shoot at you)
 //How many ships you are Should use of each type
+//Save The Option floats (They become 1 right now)
 
 //freakyNews to be used when waiting for next player?
