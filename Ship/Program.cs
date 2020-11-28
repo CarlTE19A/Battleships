@@ -165,7 +165,7 @@ namespace Ship
             Vector2 gridSidePos = new Vector2(((width-(border*2))/gridSize)/2, ((height-(border*2))/gridSize)/2);   //The position to calculate the side squres
 
             Color water = new Color(0, 70, 170, 255);       //Background Color, Obselete
-            Color gridLines = new Color(20, 20, 20, 100);  //Grid Line Color
+            Color gridLines = new Color(20, 20, 20, 150);  //Grid Line Color
 
             int[,] backgroundTexArray = new int[gridSize, gridSize];
             int[,] backgroundTexSideArray = new int[gridSize, gridSize];
@@ -213,11 +213,9 @@ namespace Ship
             Vector2 opContainerSize = new Vector2((width + width/2) - (optionsPos.X*2)-(optionBorder*2), height/6);
             
             Vector2 opGridPos = new Vector2(optionsPos.X + optionBorder, optionsPos.Y + optionBorder);
-            Rectangle opGridRec = new Rectangle(optionBorder + opGridPos.X, 2*optionBorder + opGridPos.Y, opContainerSize.X - optionBorder*2, opContainerSize.Y - optionBorder*3);
             Color optionGridColor = optionOrgColor;
 
             Vector2 opScreenPos = new Vector2(optionsPos.X + optionBorder, optionsPos.Y + 2*optionBorder + height/6);
-            Rectangle opScreenRec = new Rectangle(optionBorder + opScreenPos.X, 2*optionBorder + opScreenPos.Y, opContainerSize.X - optionBorder*2, opContainerSize.Y - optionBorder*3);
             Color optionScreenColor = optionOrgColor;
 
             Vector2 opAudioPos = new Vector2(optionsPos.X + optionBorder, optionsPos.Y + 3*optionBorder + 2*(height/6));
@@ -230,8 +228,12 @@ namespace Ship
             Color optionSfxColor = optionOrgColor;
             
             int opGridInt = 0;
-            int opScreenInt = 3;
+            int opScreenInt = 4;
             string opScreenString = $"Resulution : {width*1.5}x{width}";
+            if(width == 1000){opScreenInt = 3;}
+            if(width == 800){opScreenInt = 2;}
+            if(width == 600){opScreenInt = 1;}
+            if(width == 400){opScreenInt = 0;}
             int opScreenStrWidth = 0;
             int opStrHeight = 0;
 
@@ -302,6 +304,15 @@ namespace Ship
             Image player2_1x4Img = Raylib.LoadImage(@"Textures/ships/Spaceship_05_GREEN.png");
             Image player2_Test6Img = Raylib.LoadImage(@"Textures/ships/Spaceship_06_GREEN.png");
 
+            //Options
+            Image arrrowLeftOrgImg = Raylib.LoadImage(@"Textures/buttons/Arrows/WhiteLeftOrg.png");
+            Image arrrowLeftHovImg = Raylib.LoadImage(@"Textures/buttons/Arrows/WhiteLeftHov.png");
+            Image arrrowLeftPreImg = Raylib.LoadImage(@"Textures/buttons/Arrows/WhiteLeftPre.png");
+
+            Image arrrowRightOrgImg = Raylib.LoadImage(@"Textures/buttons/Arrows/WhiteRightOrg.png");
+            Image arrrowRightHovImg = Raylib.LoadImage(@"Textures/buttons/Arrows/WhiteRightHov.png");
+            Image arrrowRightPreImg = Raylib.LoadImage(@"Textures/buttons/Arrows/WhiteRightPre.png");
+
         //Start Program
             Raylib.SetTargetFPS(60);        //Prefereble FPS
             Raylib.InitWindow(width+width/2, height, "Battleships");    //Makeing the window
@@ -356,7 +367,12 @@ namespace Ship
 
             Texture2D player2_1x3Tex;   Texture2D player2_1x2Tex;   Texture2D player2_2x2Tex;
             Texture2D player2_1x5Tex;   Texture2D player2_1x4Tex;   Texture2D player2_Test6Tex;
+
+            Texture2D arrowLeftOrgTex;  Texture2D arrowLeftHovTex;  Texture2D arrowLeftPreTex;
+            Texture2D arrowRightOrgTex;  Texture2D arrowRightHovTex;  Texture2D arrowRightPreTex;
+
             WindowResize();
+
             while(!Raylib.WindowShouldClose())                          //Game Loop
             {
                 try{
@@ -378,21 +394,25 @@ namespace Ship
                     if(gameStage == 0)
                     {
                         menu();
+                        Raylib.ShowCursor();
                     }
                     else if(gameStage == 1) //Game
                     {
                         game();
+                        Raylib.HideCursor();
                     }
                     else if(gameStage == 2) //Game
                     {
                         opScreenStrWidth = Raylib.MeasureText(opScreenString, width/11);
                         opStrHeight = (int)opContainerSize.Y - (width/11) - optionBorder;
                         Options();
+                        Raylib.ShowCursor();
                     }
                     else
                     {
                         gameStage = 0;
                         menu();
+                        Raylib.ShowCursor();
                     }
                 }
                 catch
@@ -1203,22 +1223,66 @@ namespace Ship
             {   
                 if(opGridInt == 0)    //Grid
                 {
-
+                    
                 }
 
                 Raylib.DrawTexture(backGroundMenuTex,0,0,Color.WHITE);
 
-                Raylib.DrawRectangle((int)opGridPos.X, (int)opGridPos.Y, (int)opContainerSize.X, (int)opContainerSize.Y, optionOrgColor);
-                Raylib.DrawRectangleLinesEx(opGridRec, 5, Color.RED);
+                Raylib.DrawRectangleV(opGridPos, opContainerSize, optionGridColor);
+                
+                if(Raylib.GetMouseX() > (int)(opGridPos.X + opContainerSize.Y/10) && Raylib.GetMouseX() < (int)(opGridPos.X + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.GetMouseY() > (int)(opGridPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opGridPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON))
+                {
+                    Raylib.DrawTexture(arrowLeftPreTex, (int)(opGridPos.X + opContainerSize.Y/10), (int)(opGridPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+                else if(Raylib.GetMouseX() > (int)(opGridPos.X + opContainerSize.Y/10) && Raylib.GetMouseX() < (int)(opGridPos.X + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.GetMouseY() > (int)(opGridPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opGridPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f))
+                {
+                    Raylib.DrawTexture(arrowLeftHovTex, (int)(opGridPos.X + opContainerSize.Y/10), (int)(opGridPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+                else
+                {
+                    Raylib.DrawTexture(arrowLeftOrgTex, (int)(opGridPos.X + opContainerSize.Y/10), (int)(opGridPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+                if(Raylib.GetMouseX() > (int)(opGridPos.X + opContainerSize.Y/10) && Raylib.GetMouseX() < (int)(opGridPos.X + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.GetMouseY() > (int)(opGridPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opGridPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON))
+                {
+                    System.Console.WriteLine("Lower 1 in Grid");
+                }
 
-                Raylib.DrawRectangle((int)opScreenPos.X, (int)opScreenPos.Y, (int)opContainerSize.X, (int)opContainerSize.Y, optionOrgColor);
-                Raylib.DrawRectangleLinesEx(opScreenRec, 5, Color.RED);
+
+                Raylib.DrawRectangleV(opScreenPos, opContainerSize, optionScreenColor);
+                if(Raylib.GetMouseX() > (int)(opScreenPos.X + opContainerSize.Y/10) && Raylib.GetMouseX() < (int)(opScreenPos.X + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.GetMouseY() > (int)(opScreenPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opScreenPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON))
+                {
+                    Raylib.DrawTexture(arrowLeftPreTex, (int)(opScreenPos.X + opContainerSize.Y/10), (int)(opScreenPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+                else if(Raylib.GetMouseX() > (int)(opScreenPos.X + opContainerSize.Y/10) && Raylib.GetMouseX() < (int)(opScreenPos.X + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.GetMouseY() > (int)(opScreenPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opScreenPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f))
+                {
+                    Raylib.DrawTexture(arrowLeftHovTex, (int)(opScreenPos.X + opContainerSize.Y/10), (int)(opScreenPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+                else
+                {
+                    Raylib.DrawTexture(arrowLeftOrgTex, (int)(opScreenPos.X + opContainerSize.Y/10), (int)(opScreenPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+                if(Raylib.GetMouseX() > (int)(opScreenPos.X + opContainerSize.Y/10) && Raylib.GetMouseX() < (int)(opScreenPos.X + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.GetMouseY() > (int)(opScreenPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opScreenPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON))
+                {
+                    opScreenInt--;
+                    ScreenString();
+                }
+
+                if(opScreenInt == 0){}
                 Raylib.DrawText(opScreenString, (int)(width*0.75)-opScreenStrWidth/2, (int)opScreenPos.Y+opStrHeight, width/11, Color.WHITE);
 
-                Raylib.DrawRectangle((int)opAudioPos.X, (int)opAudioPos.Y, (int)opContainerSize.X, (int)opContainerSize.Y, optionOrgColor);
-                Raylib.DrawRectangle((int)opMusicPos.X, (int)opMusicPos.Y, (int)opContainerSize.X, (int)opContainerSize.Y, optionOrgColor);
-                Raylib.DrawRectangle((int)opSfxPos.X, (int)opSfxPos.Y, (int)opContainerSize.X, (int)opContainerSize.Y, optionOrgColor);
-                
+                Raylib.DrawRectangleV(opAudioPos, opContainerSize, optionAudioColor);
+                Raylib.DrawRectangleV(opMusicPos, opContainerSize, optionMusicColor);
+                Raylib.DrawRectangleV(opSfxPos, opContainerSize, optionSfxColor);
 
                 //Resulutions 
                 //600 x 400 > width = 400
@@ -1290,6 +1354,8 @@ namespace Ship
                 gridMainSize = new Vector2((width/gridSize)-((border*2)/gridSize), (height/gridSize)-((border*2)/gridSize));    //The Size of the squres
 
                 gridSidePos = new Vector2(((width-(border*2))/gridSize)/2, ((height-(border*2))/gridSize)/2);   //The position to calculate the side squres
+
+                height = width;
             
             //Image Resizeing
                 Raylib.ImageResize(ref redCursorImg, (int)gridMainSize.X, (int)gridMainSize.Y);
@@ -1325,7 +1391,19 @@ namespace Ship
                 Raylib.ImageResize(ref player2_1x5Img, (int)gridMainSize.X, (int)gridMainSize.Y*5);
                 Raylib.ImageResize(ref player2_1x4Img, (int)gridMainSize.X, (int)gridMainSize.Y*4);
                 Raylib.ImageResize(ref player2_Test6Img, (int)gridMainSize.X, (int)gridMainSize.Y);
+
+                Raylib.ImageResize(ref arrrowLeftOrgImg, (int)(opContainerSize.Y*0.8f), (int)(opContainerSize.Y*0.8f));
+                Raylib.ImageResize(ref arrrowLeftHovImg, (int)(opContainerSize.Y*0.8f), (int)(opContainerSize.Y*0.8f));
+                Raylib.ImageResize(ref arrrowLeftPreImg, (int)(opContainerSize.Y*0.8f), (int)(opContainerSize.Y*0.8f));
+
+                Raylib.ImageResize(ref arrrowRightOrgImg, (int)(opContainerSize.Y*0.8f), (int)(opContainerSize.Y*0.8f));
+                Raylib.ImageResize(ref arrrowRightHovImg, (int)(opContainerSize.Y*0.8f), (int)(opContainerSize.Y*0.8f));
+                Raylib.ImageResize(ref arrrowRightPreImg, (int)(opContainerSize.Y*0.8f), (int)(opContainerSize.Y*0.8f));
+
             
+            //Options
+                //Raylib.ImageResize(ref opContainerImg, (int)opContainerSize.X, (int)opContainerSize.Y);
+
             //Textures Reload
                 redCursorTex = Raylib.LoadTextureFromImage(redCursorImg);
                 greenCursorTex = Raylib.LoadTextureFromImage(greenCursorImg);
@@ -1386,6 +1464,14 @@ namespace Ship
                 player2_1x5Tex = Raylib.LoadTextureFromImage(player2_1x5Img);
                 player2_1x4Tex = Raylib.LoadTextureFromImage(player2_1x4Img);
                 player2_Test6Tex = Raylib.LoadTextureFromImage(player2_Test6Img);
+
+                arrowLeftOrgTex = Raylib.LoadTextureFromImage(arrrowLeftOrgImg);
+                arrowLeftHovTex = Raylib.LoadTextureFromImage(arrrowLeftHovImg);
+                arrowLeftPreTex = Raylib.LoadTextureFromImage(arrrowLeftPreImg);
+
+                arrowRightOrgTex = Raylib.LoadTextureFromImage(arrrowRightOrgImg);
+                arrowRightHovTex = Raylib.LoadTextureFromImage(arrrowRightHovImg);
+                arrowRightPreTex = Raylib.LoadTextureFromImage(arrrowRightPreImg);
             }
         
             void LoadShips()
