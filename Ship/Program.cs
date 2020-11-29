@@ -118,6 +118,7 @@ namespace Ship
         static void Main(string[] args)
         {
         //Basic Rules
+            bool gameShouldClose = false;
             int width = 1000;   //The width of the window (Ish) actully Full width = width*1.5
             int FPS;            //How fast the game runs
             int gridSize = 15;  //Hard to use over arund 100   //May still be a problem with some numbers
@@ -144,7 +145,9 @@ namespace Ship
             int gameStage = 0;  //0 = Menu, 1 = Game
             int gamePhase = 0;  //0 = Build Ships, 1 = Play
             int activeShip = 0;  //What ship player is building
+            bool currentAlign = false; //false = vertical, true = horizotal
             string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"; //The english alphabet, simplest way, in use when converting numbers to letters
+
             Vector2 MousePos;   //Where the mouse Currently is
             Random generator = new Random();    //All random
             Ship.P1Hitbox = new bool[gridSize,gridSize];    //Sets the Size of Player 1 hitbox
@@ -205,6 +208,7 @@ namespace Ship
 
         //Options  //The prefix op stands for op-tions
             int optionBorder = width/50;
+            int opTextSize = width/15;  //This way of calculating gives a strange result possibly test
             Color optionBackColor = new Color(10,10,10,200);
             Color optionOrgColor = new Color(150, 150, 150, 255);
             Color optionHovColor = new Color(100, 100, 100, 255);
@@ -228,6 +232,7 @@ namespace Ship
             Color optionSfxColor = optionOrgColor;
             
             int opGridInt = 0;
+            string opGridString = $"Grid : {gridSize}x{gridSize}";
             int opScreenInt = 4;
             string opScreenString = $"Resulution : {width*1.5}x{width}";
             if(width == 1000){opScreenInt = 3;}
@@ -235,8 +240,18 @@ namespace Ship
             if(width == 600){opScreenInt = 1;}
             if(width == 400){opScreenInt = 0;}
             int opScreenStrWidth = 0;
+            int opGridStrWidth = 0;
             int opStrHeight = 0;
 
+            if(gridSize == 8){opGridInt = 0;}
+            else if(gridSize == 10){opGridInt = 1;}
+            else if(gridSize == 12){opGridInt = 2;}
+            else if(gridSize == 15){opGridInt = 3;}
+            else if(gridSize == 18){opGridInt = 4;}
+            else if(gridSize == 20){opGridInt = 5;}
+            else if(gridSize == 30){opGridInt = 6;}
+            else if(gridSize == 40){opGridInt = 7;}
+            else if(gridSize == 60){opGridInt = 8;}
 
         //Images
             Image redCursorImg = Raylib.LoadImage(@"Textures/CursorRed.png");
@@ -296,6 +311,12 @@ namespace Ship
             Image player1_1x4Img = Raylib.LoadImage(@"Textures/ships/Spaceship_05_RED.png");
             Image player1_Test6Img = Raylib.LoadImage(@"Textures/ships/Spaceship_06_RED.png");
 
+            Image player1_3x1Img = Raylib.LoadImage(@"Textures/ships/Spaceship_H_01_RED.png");
+            Image player1_2x1Img = Raylib.LoadImage(@"Textures/ships/Spaceship_H_02_RED.png");
+
+            Image player1_5x1Img = Raylib.LoadImage(@"Textures/ships/Spaceship_H_04_RED.png");
+            Image player1_4x1Img = Raylib.LoadImage(@"Textures/ships/Spaceship_H_05_RED.png");
+
             //Player 2 Ships
             Image player2_1x3Img = Raylib.LoadImage(@"Textures/ships/Spaceship_01_GREEN.png");
             Image player2_1x2Img = Raylib.LoadImage(@"Textures/ships/Spaceship_02_GREEN.png");
@@ -303,6 +324,12 @@ namespace Ship
             Image player2_1x5Img = Raylib.LoadImage(@"Textures/ships/Spaceship_04_GREEN.png");
             Image player2_1x4Img = Raylib.LoadImage(@"Textures/ships/Spaceship_05_GREEN.png");
             Image player2_Test6Img = Raylib.LoadImage(@"Textures/ships/Spaceship_06_GREEN.png");
+
+            Image player2_3x1Img = Raylib.LoadImage(@"Textures/ships/Spaceship_H_01_GREEN.png");
+            Image player2_2x1Img = Raylib.LoadImage(@"Textures/ships/Spaceship_H_02_GREEN.png");
+
+            Image player2_5x1Img = Raylib.LoadImage(@"Textures/ships/Spaceship_H_04_GREEN.png");
+            Image player2_4x1Img = Raylib.LoadImage(@"Textures/ships/Spaceship_H_05_GREEN.png");
 
             //Options
             Image arrrowLeftOrgImg = Raylib.LoadImage(@"Textures/buttons/Arrows/WhiteLeftOrg.png");
@@ -364,64 +391,20 @@ namespace Ship
 
             Texture2D player1_1x3Tex;   Texture2D player1_1x2Tex;   Texture2D player1_2x2Tex;
             Texture2D player1_1x5Tex;   Texture2D player1_1x4Tex;   Texture2D player1_Test6Tex;
+            
+            Texture2D player1_3x1Tex;   Texture2D player1_2x1Tex;
+            Texture2D player1_5x1Tex;   Texture2D player1_4x1Tex;
 
             Texture2D player2_1x3Tex;   Texture2D player2_1x2Tex;   Texture2D player2_2x2Tex;
             Texture2D player2_1x5Tex;   Texture2D player2_1x4Tex;   Texture2D player2_Test6Tex;
+
+            Texture2D player2_3x1Tex;   Texture2D player2_2x1Tex;
+            Texture2D player2_5x1Tex;   Texture2D player2_4x1Tex;
 
             Texture2D arrowLeftOrgTex;  Texture2D arrowLeftHovTex;  Texture2D arrowLeftPreTex;
             Texture2D arrowRightOrgTex;  Texture2D arrowRightHovTex;  Texture2D arrowRightPreTex;
 
             WindowResize();
-
-            while(!Raylib.WindowShouldClose())                          //Game Loop
-            {
-                try{
-                    Raylib.SetExitKey(0);       //Dont exit with Esc
-                    Raylib.BeginDrawing();      //Start drawing (Including everything to be able to draw at any point)
-                    Raylib.ClearBackground(Color.BLACK);    //Basic Background
-                    FPS = Raylib.GetFPS();      //The FPS
-                    Raylib.DrawText($"FPS: {FPS}", width-80, height-18, 16, Color.WHITE);   //Draws FPS, remove?
-                    MousePos = Raylib.GetMousePosition();
-                    if(Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
-                    {
-                        gameStage = 0;
-                        System.Console.WriteLine("INFO : MENU Activated");
-                    }
-                    if(Raylib.IsKeyPressed(KeyboardKey.KEY_RIGHT_SHIFT))
-                    {
-                        Test();
-                    }
-                    if(gameStage == 0)
-                    {
-                        menu();
-                        Raylib.ShowCursor();
-                    }
-                    else if(gameStage == 1) //Game
-                    {
-                        game();
-                        Raylib.HideCursor();
-                    }
-                    else if(gameStage == 2) //Game
-                    {
-                        opScreenStrWidth = Raylib.MeasureText(opScreenString, width/11);
-                        opStrHeight = (int)opContainerSize.Y - (width/11) - optionBorder;
-                        Options();
-                        Raylib.ShowCursor();
-                    }
-                    else
-                    {
-                        gameStage = 0;
-                        menu();
-                        Raylib.ShowCursor();
-                    }
-                }
-                catch
-                {
-                    CritError();
-                }
-                Music();
-                Raylib.EndDrawing();
-            }
             
             void menu()
             {
@@ -514,13 +497,95 @@ namespace Ship
                         if(gamePhase==0)
                         {
                             try{
-                                if(activeShip == 0 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false)
+                                //
+                                if(currentAlign == false && activeShip == 0 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false)
                                 {
                                     Ship shipInstances = new Ship(activeShip, cursorPos);
                                     p1ShipList.Add(shipInstances);
                                     p1ShipList[p1ShipList.Count-1].Placement();
                                     p1ShipList[p1ShipList.Count-1].mainPositionDefined = new Vector2(cursorPos.X*(width-(border/2)/gridSize), cursorPos.X*(width-(border/2)/gridSize));
                                     p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p1ShipList[p1ShipList.Count-1].align = false;
+                                    Ship.activePlayer = 1;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+                                //
+                                else if(currentAlign == false && activeShip == 1 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p1ShipList.Add(shipInstances);
+                                    p1ShipList[p1ShipList.Count-1].Placement();
+                                    p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p1ShipList[p1ShipList.Count-1].align = false;
+                                    Ship.activePlayer = 1;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+                                //
+                                else if(currentAlign == false && activeShip == 2 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+3] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p1ShipList.Add(shipInstances);
+                                    p1ShipList[p1ShipList.Count-1].Placement();
+                                    p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p1ShipList[p1ShipList.Count-1].align = false;
+                                    Ship.activePlayer = 1;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+                                //
+                                else if(currentAlign == false && activeShip == 3 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+3] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+4] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p1ShipList.Add(shipInstances);
+                                    p1ShipList[p1ShipList.Count-1].Placement();
+                                    p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p1ShipList[p1ShipList.Count-1].align = false;
+                                    Ship.activePlayer = 1;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+                                //
+                                else if(currentAlign == false && activeShip == 4 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y+1] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p1ShipList.Add(shipInstances);
+                                    p1ShipList[p1ShipList.Count-1].Placement();
+                                    p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p1ShipList[p1ShipList.Count-1].align = true;
                                     Ship.activePlayer = 1;
                                     if(gridSize % 2 == 0)
                                     {
@@ -534,12 +599,15 @@ namespace Ship
                                     }
                                 }
                                 
-                                else if(activeShip == 1 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false)
+                                //
+                                else if(currentAlign == true && activeShip == 0 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false)
                                 {
                                     Ship shipInstances = new Ship(activeShip, cursorPos);
                                     p1ShipList.Add(shipInstances);
                                     p1ShipList[p1ShipList.Count-1].Placement();
+                                    p1ShipList[p1ShipList.Count-1].mainPositionDefined = new Vector2(cursorPos.X*(width-(border/2)/gridSize), cursorPos.X*(width-(border/2)/gridSize));
                                     p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p1ShipList[p1ShipList.Count-1].align = true;
                                     Ship.activePlayer = 1;
                                     if(gridSize % 2 == 0)
                                     {
@@ -552,13 +620,74 @@ namespace Ship
                                         cursorPos.Y = gridSize/2;
                                     }
                                 }
-                                
-                                else if(activeShip == 2 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+3] == false)
+                                //
+                                else if(currentAlign == true && activeShip == 1 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+2, (int)Ship.currentPos.Y] == false)
                                 {
                                     Ship shipInstances = new Ship(activeShip, cursorPos);
                                     p1ShipList.Add(shipInstances);
                                     p1ShipList[p1ShipList.Count-1].Placement();
                                     p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p1ShipList[p1ShipList.Count-1].align = true;
+                                    Ship.activePlayer = 1;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+                                //
+                                else if(currentAlign == true && activeShip == 2 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+2, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+3, (int)Ship.currentPos.Y] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p1ShipList.Add(shipInstances);
+                                    p1ShipList[p1ShipList.Count-1].Placement();
+                                    p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p1ShipList[p1ShipList.Count-1].align = true;
+                                    Ship.activePlayer = 1;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+                                //
+                                else if(currentAlign == true && activeShip == 3 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+2, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+3, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+4, (int)Ship.currentPos.Y] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p1ShipList.Add(shipInstances);
+                                    p1ShipList[p1ShipList.Count-1].Placement();
+                                    p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p1ShipList[p1ShipList.Count-1].align = true;
+                                    Ship.activePlayer = 1;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+                                //
+                                else if(currentAlign == true && activeShip == 4 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y+1] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p1ShipList.Add(shipInstances);
+                                    p1ShipList[p1ShipList.Count-1].Placement();
+                                    p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p1ShipList[p1ShipList.Count-1].align = true;
                                     Ship.activePlayer = 1;
                                     if(gridSize % 2 == 0)
                                     {
@@ -572,44 +701,6 @@ namespace Ship
                                     }
                                 }
 
-                                else if(activeShip == 3 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+3] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+4] == false)
-                                {
-                                    Ship shipInstances = new Ship(activeShip, cursorPos);
-                                    p1ShipList.Add(shipInstances);
-                                    p1ShipList[p1ShipList.Count-1].Placement();
-                                    p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
-                                    Ship.activePlayer = 1;
-                                    if(gridSize % 2 == 0)
-                                    {
-                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
-                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
-                                    }
-                                    else
-                                    {
-                                        cursorPos.X = gridSize/2;
-                                        cursorPos.Y = gridSize/2;
-                                    }
-                                }
-                                
-                                else if(activeShip == 4 && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P1Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y+1] == false)
-                                {
-                                    Ship shipInstances = new Ship(activeShip, cursorPos);
-                                    p1ShipList.Add(shipInstances);
-                                    p1ShipList[p1ShipList.Count-1].Placement();
-                                    p1ShipList[p1ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
-                                    Ship.activePlayer = 1;
-                                    if(gridSize % 2 == 0)
-                                    {
-                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
-                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
-                                    }
-                                    else
-                                    {
-                                        cursorPos.X = gridSize/2;
-                                        cursorPos.Y = gridSize/2;
-                                    }
-                                }
-                                
                                 else
                                 {
                                     System.Console.WriteLine("ERROR : Position filled");
@@ -633,12 +724,15 @@ namespace Ship
                         if(gamePhase==0)
                         {
                             try{
-                                if(activeShip == 0 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false)
+                                //
+                                if(currentAlign == false && activeShip == 0 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false)
                                 {
                                     Ship shipInstances = new Ship(activeShip, cursorPos);
                                     p2ShipList.Add(shipInstances);
                                     p2ShipList[p2ShipList.Count-1].Placement();
+                                    p2ShipList[p2ShipList.Count-1].mainPositionDefined = new Vector2(cursorPos.X*(width-(border/2)/gridSize), cursorPos.X*(width-(border/2)/gridSize));
                                     p2ShipList[p2ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p2ShipList[p2ShipList.Count-1].align = false;
                                     Ship.activePlayer = 0;
                                     if(gridSize % 2 == 0)
                                     {
@@ -651,12 +745,14 @@ namespace Ship
                                         cursorPos.Y = gridSize/2;
                                     }
                                 }
-                                else if(activeShip == 1 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false)
+                                //
+                                else if(currentAlign == false && activeShip == 1 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false)
                                 {
                                     Ship shipInstances = new Ship(activeShip, cursorPos);
                                     p2ShipList.Add(shipInstances);
                                     p2ShipList[p2ShipList.Count-1].Placement();
                                     p2ShipList[p2ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p2ShipList[p2ShipList.Count-1].align = false;
                                     Ship.activePlayer = 0;
                                     if(gridSize % 2 == 0)
                                     {
@@ -669,12 +765,14 @@ namespace Ship
                                         cursorPos.Y = gridSize/2;
                                     }
                                 }
-                                else if(activeShip == 2 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+3] == false)
+                                //
+                                else if(currentAlign == false && activeShip == 2 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+3] == false)
                                 {
                                     Ship shipInstances = new Ship(activeShip, cursorPos);
                                     p2ShipList.Add(shipInstances);
                                     p2ShipList[p2ShipList.Count-1].Placement();
                                     p2ShipList[p2ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p2ShipList[p2ShipList.Count-1].align = false;
                                     Ship.activePlayer = 0;
                                     if(gridSize % 2 == 0)
                                     {
@@ -687,12 +785,14 @@ namespace Ship
                                         cursorPos.Y = gridSize/2;
                                     }
                                 }
-                                else if(activeShip == 3 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+3] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+4] == false)
+                                //
+                                else if(currentAlign == false && activeShip == 3 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+2] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+3] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+4] == false)
                                 {
                                     Ship shipInstances = new Ship(activeShip, cursorPos);
                                     p2ShipList.Add(shipInstances);
                                     p2ShipList[p2ShipList.Count-1].Placement();
                                     p2ShipList[p2ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p2ShipList[p2ShipList.Count-1].align = false;
                                     Ship.activePlayer = 0;
                                     if(gridSize % 2 == 0)
                                     {
@@ -705,12 +805,14 @@ namespace Ship
                                         cursorPos.Y = gridSize/2;
                                     }
                                 }
-                                else if(activeShip == 4 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y+1] == false)
+                                //
+                                else if(currentAlign == false && activeShip == 4 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y+1] == false)
                                 {
                                     Ship shipInstances = new Ship(activeShip, cursorPos);
                                     p2ShipList.Add(shipInstances);
                                     p2ShipList[p2ShipList.Count-1].Placement();
                                     p2ShipList[p2ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p2ShipList[p2ShipList.Count-1].align = true;
                                     Ship.activePlayer = 0;
                                     if(gridSize % 2 == 0)
                                     {
@@ -723,14 +825,117 @@ namespace Ship
                                         cursorPos.Y = gridSize/2;
                                     }
                                 }
+                                
+                                //
+                                else if(currentAlign == true && activeShip == 0 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p2ShipList.Add(shipInstances);
+                                    p2ShipList[p2ShipList.Count-1].Placement();
+                                    p2ShipList[p2ShipList.Count-1].mainPositionDefined = new Vector2(cursorPos.X*(width-(border/2)/gridSize), cursorPos.X*(width-(border/2)/gridSize));
+                                    p2ShipList[p2ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p2ShipList[p2ShipList.Count-1].align = true;
+                                    Ship.activePlayer = 0;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+                                //
+                                else if(currentAlign == true && activeShip == 1 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+2, (int)Ship.currentPos.Y] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p2ShipList.Add(shipInstances);
+                                    p2ShipList[p2ShipList.Count-1].Placement();
+                                    p2ShipList[p2ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p2ShipList[p2ShipList.Count-1].align = true;
+                                    Ship.activePlayer = 0;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+                                //
+                                else if(currentAlign == true && activeShip == 2 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+2, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+3, (int)Ship.currentPos.Y] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p2ShipList.Add(shipInstances);
+                                    p2ShipList[p2ShipList.Count-1].Placement();
+                                    p2ShipList[p2ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p2ShipList[p2ShipList.Count-1].align = true;
+                                    Ship.activePlayer = 0;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+                                //
+                                else if(currentAlign == true && activeShip == 3 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+2, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+3, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+4, (int)Ship.currentPos.Y] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p2ShipList.Add(shipInstances);
+                                    p2ShipList[p2ShipList.Count-1].Placement();
+                                    p2ShipList[p2ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p2ShipList[p2ShipList.Count-1].align = true;
+                                    Ship.activePlayer = 0;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+                                //
+                                else if(currentAlign == true && activeShip == 4 && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X, (int)Ship.currentPos.Y+1] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y] == false && Ship.P2Hitbox[(int)Ship.currentPos.X+1, (int)Ship.currentPos.Y+1] == false)
+                                {
+                                    Ship shipInstances = new Ship(activeShip, cursorPos);
+                                    p2ShipList.Add(shipInstances);
+                                    p2ShipList[p2ShipList.Count-1].Placement();
+                                    p2ShipList[p2ShipList.Count-1].sidePositionDefined = new Vector2((cursorPos.X*(width-(border*2))/gridSize)/2 + width, cursorPos.Y*((height-(border*2))/gridSize)/2);
+                                    p2ShipList[p2ShipList.Count-1].align = true;
+                                    Ship.activePlayer = 0;
+                                    if(gridSize % 2 == 0)
+                                    {
+                                        cursorPos.X = generator.Next(gridSize/2-1, gridSize/2+1);
+                                        cursorPos.Y = generator.Next(gridSize/2-1, gridSize/2+1);
+                                    }
+                                    else
+                                    {
+                                        cursorPos.X = gridSize/2;
+                                        cursorPos.Y = gridSize/2;
+                                    }
+                                }
+
                                 else
                                 {
-                                    System.Console.WriteLine("There is already a ship there");
+                                    System.Console.WriteLine("ERROR : Position filled");
                                 }
                             }
                             catch
                             {
-                                System.Console.WriteLine("That place is outside area");
+                                System.Console.WriteLine("ERROR : Position outof Index");
                             }
                         }
 
@@ -985,99 +1190,10 @@ namespace Ship
                 cursorYstr += gridSize-cursorPos.Y;
                 Raylib.DrawText($"{cursorXstr} {cursorYstr}", border/10+width, border/10 + height/2, (border/10)*18, Color.BLACK);  //Actully shows Position
                 cursorYstr += (gridSize-cursorPos.Y);           //To show position count starting from bottom left for player and not top left
+                
                 if(gamePhase == 0)
                 {
-                    if(activeShip == 0)
-                    {
-                        if(Ship.activePlayer == 0)
-                        {
-                            Raylib.DrawTexture(player1_1x2Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                        else if(Ship.activePlayer == 1)
-                        {
-                            Raylib.DrawTexture(player2_1x2Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                    }
-                    else if(activeShip == 1)
-                    {
-                        if(Ship.activePlayer == 0)
-                        {
-                            Raylib.DrawTexture(player1_1x3Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                        else if(Ship.activePlayer == 1)
-                        {
-                            Raylib.DrawTexture(player2_1x3Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                    }
-                    else if(activeShip == 2)
-                    {
-                        if(Ship.activePlayer == 0)
-                        {
-                             Raylib.DrawTexture(player1_1x4Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize) , Color.WHITE);
-                        }
-                        else if(Ship.activePlayer == 1)
-                        {
-                            Raylib.DrawTexture(player2_1x4Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize) , Color.WHITE);
-                        }
-                    }
-                    else if(activeShip == 3)
-                    {
-                        if(Ship.activePlayer == 0)
-                        {
-                            Raylib.DrawTexture(player1_1x5Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize) , Color.WHITE);
-                        }
-                        else if(Ship.activePlayer == 1)
-                        {
-                            Raylib.DrawTexture(player2_1x5Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize) , Color.WHITE);
-                        }
-                    }
-                    else if(activeShip == 4)
-                    {
-                        if(Ship.activePlayer == 0)
-                        {
-                            Raylib.DrawTexture(player1_2x2Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                        else if(Ship.activePlayer == 1)
-                        {
-                            Raylib.DrawTexture(player2_2x2Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                    }
-                    else if(activeShip == 5)
-                    {
-                        if(Ship.activePlayer == 0)
-                        {
-
-                        }
-                        else if(Ship.activePlayer == 1)
-                        {
-                            
-                        }
-                    }
-                    if(activeShip == 0 && cursorPos.Y > gridSize-2)
-                    {
-                        cursorPos.Y = gridSize-2;
-                    }
-                    if(activeShip == 1 && cursorPos.Y > gridSize-3)
-                    {
-                        cursorPos.Y = gridSize-3;
-                    }
-                    if(activeShip == 2 && cursorPos.Y > gridSize-4)
-                    {
-                        cursorPos.Y = gridSize-4;
-                    }
-                    if(activeShip == 3 && cursorPos.Y > gridSize-5)
-                    {
-                        cursorPos.Y = gridSize-5;
-                    }
-                    if(activeShip == 4 && cursorPos.Y > gridSize-2)
-                    {
-                        cursorPos.Y = gridSize-2;
-                    }
-
-                    if(activeShip == 4 && cursorPos.X > gridSize-2)
-                    {
-                        cursorPos.X = gridSize-2;
-                    }
+                    PlaceShip();
                 }    
 
                 if (gamePhase == 1)
@@ -1093,6 +1209,100 @@ namespace Ship
                 }
             }
             
+            void PlaceShip()
+            {
+                if(activeShip == 0)
+                {
+                    if(Ship.activePlayer == 0)
+                    {
+                        Raylib.DrawTexture(player1_1x2Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
+                    }
+                    else if(Ship.activePlayer == 1)
+                    {
+                        Raylib.DrawTexture(player2_1x2Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
+                    }
+                }
+                else if(activeShip == 1)
+                {
+                    if(Ship.activePlayer == 0)
+                    {
+                        Raylib.DrawTexture(player1_1x3Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
+                    }
+                    else if(Ship.activePlayer == 1)
+                    {
+                        Raylib.DrawTexture(player2_1x3Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
+                    }
+                }
+                else if(activeShip == 2)
+                {
+                    if(Ship.activePlayer == 0)
+                    {
+                        Raylib.DrawTexture(player1_1x4Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize) , Color.WHITE);
+                    }
+                    else if(Ship.activePlayer == 1)
+                    {
+                        Raylib.DrawTexture(player2_1x4Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize) , Color.WHITE);
+                    }
+                }
+                else if(activeShip == 3)
+                {
+                    if(Ship.activePlayer == 0)
+                    {
+                        Raylib.DrawTexture(player1_1x5Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize) , Color.WHITE);
+                    }
+                    else if(Ship.activePlayer == 1)
+                    {
+                        Raylib.DrawTexture(player2_1x5Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize) , Color.WHITE);
+                    }
+                }
+                else if(activeShip == 4)
+                {
+                    if(Ship.activePlayer == 0)
+                    {
+                        Raylib.DrawTexture(player1_2x2Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
+                    }
+                    else if(Ship.activePlayer == 1)
+                    {
+                        Raylib.DrawTexture(player2_2x2Tex, border+(int)cursorPos.X*((width-(border*2))/gridSize), border+(int)cursorPos.Y*((height-(border*2))/gridSize), Color.WHITE);
+                    }
+                }
+                else if(activeShip == 5)
+                {
+                    if(Ship.activePlayer == 0)
+                    {
+
+                    }
+                    else if(Ship.activePlayer == 1)
+                    {
+                        
+                    }
+                }
+                if(activeShip == 0 && cursorPos.Y > gridSize-2)
+                {
+                    cursorPos.Y = gridSize-2;
+                }
+                if(activeShip == 1 && cursorPos.Y > gridSize-3)
+                {
+                    cursorPos.Y = gridSize-3;
+                }
+                if(activeShip == 2 && cursorPos.Y > gridSize-4)
+                {
+                    cursorPos.Y = gridSize-4;
+                }
+                if(activeShip == 3 && cursorPos.Y > gridSize-5)
+                {
+                    cursorPos.Y = gridSize-5;
+                }
+                if(activeShip == 4 && cursorPos.Y > gridSize-2)
+                {
+                    cursorPos.Y = gridSize-2;
+                }
+                if(activeShip == 4 && cursorPos.X > gridSize-2)
+                {
+                    cursorPos.X = gridSize-2;
+                }
+            }
+
             void Music()
             {
                 if(gameStage == 0)
@@ -1221,15 +1431,11 @@ namespace Ship
         
             void Options()  //Menu for changeing options
             {   
-                if(opGridInt == 0)    //Grid
-                {
-                    
-                }
-
                 Raylib.DrawTexture(backGroundMenuTex,0,0,Color.WHITE);
 
-                Raylib.DrawRectangleV(opGridPos, opContainerSize, optionGridColor);
-                
+            //Grid Option
+                Raylib.DrawRectangleV(opGridPos, opContainerSize, optionGridColor);     
+                //Grid Button Left
                 if(Raylib.GetMouseX() > (int)(opGridPos.X + opContainerSize.Y/10) && Raylib.GetMouseX() < (int)(opGridPos.X + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
                 && Raylib.GetMouseY() > (int)(opGridPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opGridPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
                 && Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON))
@@ -1245,15 +1451,47 @@ namespace Ship
                 {
                     Raylib.DrawTexture(arrowLeftOrgTex, (int)(opGridPos.X + opContainerSize.Y/10), (int)(opGridPos.Y + opContainerSize.Y/10), Color.WHITE);
                 }
+                
+                //Grid Button Right
+                if(Raylib.GetMouseX() > (int)(opGridPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f) && Raylib.GetMouseX() < (int)(opGridPos.X+opContainerSize.X-opContainerSize.Y/10) 
+                && Raylib.GetMouseY() > (int)(opGridPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opGridPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON))
+                {
+                    Raylib.DrawTexture(arrowRightPreTex, (int)(opGridPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f), (int)(opGridPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+                else if(Raylib.GetMouseX() > (int)(opGridPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f) && Raylib.GetMouseX() < (int)(opGridPos.X+opContainerSize.X-opContainerSize.Y/10) 
+                && Raylib.GetMouseY() > (int)(opGridPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opGridPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f))
+                {
+                    Raylib.DrawTexture(arrowRightHovTex, (int)(opGridPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f), (int)(opGridPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+                else
+                {
+                    Raylib.DrawTexture(arrowRightOrgTex, (int)(opGridPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f), (int)(opGridPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+
+
+                //Grid Button Left Activated
                 if(Raylib.GetMouseX() > (int)(opGridPos.X + opContainerSize.Y/10) && Raylib.GetMouseX() < (int)(opGridPos.X + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
                 && Raylib.GetMouseY() > (int)(opGridPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opGridPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
                 && Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON))
                 {
-                    System.Console.WriteLine("Lower 1 in Grid");
+                    opGridInt--;
+                    GridString();
                 }
-
-
+                //Grid Button Right Activated
+                if(Raylib.GetMouseX() > (int)(opGridPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f) && Raylib.GetMouseX() < (int)(opGridPos.X+opContainerSize.X-opContainerSize.Y/10) 
+                && Raylib.GetMouseY() > (int)(opGridPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opGridPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON))
+                {
+                    opGridInt++;
+                    GridString();
+                }
+                
+                Raylib.DrawText(opGridString, (int)(width*0.75)-opGridStrWidth/2, (int)opGridPos.Y+opStrHeight, opTextSize, Color.WHITE);
+            
+            //Screen Option
                 Raylib.DrawRectangleV(opScreenPos, opContainerSize, optionScreenColor);
+                //Screen Button Left
                 if(Raylib.GetMouseX() > (int)(opScreenPos.X + opContainerSize.Y/10) && Raylib.GetMouseX() < (int)(opScreenPos.X + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
                 && Raylib.GetMouseY() > (int)(opScreenPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opScreenPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
                 && Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON))
@@ -1269,16 +1507,45 @@ namespace Ship
                 {
                     Raylib.DrawTexture(arrowLeftOrgTex, (int)(opScreenPos.X + opContainerSize.Y/10), (int)(opScreenPos.Y + opContainerSize.Y/10), Color.WHITE);
                 }
+                
+                //Screen Button Right
+                if(Raylib.GetMouseX() > (int)(opScreenPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f) && Raylib.GetMouseX() < (int)(opScreenPos.X+opContainerSize.X-opContainerSize.Y/10) 
+                && Raylib.GetMouseY() > (int)(opScreenPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opScreenPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.IsMouseButtonDown(MouseButton.MOUSE_LEFT_BUTTON))
+                {
+                    Raylib.DrawTexture(arrowRightPreTex, (int)(opScreenPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f), (int)(opScreenPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+                else if(Raylib.GetMouseX() > (int)(opScreenPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f) && Raylib.GetMouseX() < (int)(opScreenPos.X+opContainerSize.X-opContainerSize.Y/10) 
+                && Raylib.GetMouseY() > (int)(opScreenPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opScreenPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f))
+                {
+                    Raylib.DrawTexture(arrowRightHovTex, (int)(opScreenPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f), (int)(opScreenPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+                else
+                {
+                    Raylib.DrawTexture(arrowRightOrgTex, (int)(opScreenPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f), (int)(opScreenPos.Y + opContainerSize.Y/10), Color.WHITE);
+                }
+
+                
+                //Screen Button Left Pressed
                 if(Raylib.GetMouseX() > (int)(opScreenPos.X + opContainerSize.Y/10) && Raylib.GetMouseX() < (int)(opScreenPos.X + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
                 && Raylib.GetMouseY() > (int)(opScreenPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opScreenPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
-                && Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON))
+                && Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON))                
                 {
                     opScreenInt--;
                     ScreenString();
                 }
 
-                if(opScreenInt == 0){}
-                Raylib.DrawText(opScreenString, (int)(width*0.75)-opScreenStrWidth/2, (int)opScreenPos.Y+opStrHeight, width/11, Color.WHITE);
+                //Grid Button Right Activated
+                if(Raylib.GetMouseX() > (int)(opScreenPos.X+opContainerSize.X-opContainerSize.Y/10-opContainerSize.Y*0.8f) && Raylib.GetMouseX() < (int)(opScreenPos.X+opContainerSize.X-opContainerSize.Y/10) 
+                && Raylib.GetMouseY() > (int)(opScreenPos.Y + opContainerSize.Y/10) && Raylib.GetMouseY() < (int)(opScreenPos.Y + opContainerSize.Y/10 + opContainerSize.Y*0.8f)
+                && Raylib.IsMouseButtonReleased(MouseButton.MOUSE_LEFT_BUTTON))
+                {
+                    opScreenInt++;
+                    ScreenString();
+                }
+
+                Raylib.DrawText(opScreenString, (int)(width*0.75)-opScreenStrWidth/2, (int)opScreenPos.Y+opStrHeight, opTextSize, Color.WHITE);
+
 
                 Raylib.DrawRectangleV(opAudioPos, opContainerSize, optionAudioColor);
                 Raylib.DrawRectangleV(opMusicPos, opContainerSize, optionMusicColor);
@@ -1295,10 +1562,16 @@ namespace Ship
 
                 //Audio multiplier
                 
+                Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMult*musicMult);
+                Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult*audioMult*musicMult);
+                Raylib.SetMusicVolume(computerBeep, computerBeepMult * musicMult * audioMult);
+                Raylib.SetSoundVolume(shot0, shot0Mult*audioMult*sfxMult);
+                Raylib.SetSoundVolume(engineStart, engineStartMult*audioMult*sfxMult);
+                
                 if(Raylib.IsKeyPressed(KeyboardKey.KEY_ENTER))
                 {
                     OptionSave();
-                }
+                }                
             }
             
             void ScreenString() //When button left or right is pressed in the Options
@@ -1306,27 +1579,141 @@ namespace Ship
                 if(opScreenInt == 0)    //Resulutions
                 {
                     opScreenString = "Resulution : 600x400";
-                    opScreenStrWidth = Raylib.MeasureText(opScreenString, width/11);
+                    opScreenStrWidth = Raylib.MeasureText(opScreenString, opTextSize);
                 }
                 else if(opScreenInt == 1)
                 {
                     opScreenString = "Resulution : 900x600";
-                    opScreenStrWidth = Raylib.MeasureText(opScreenString, width/11);
+                    opScreenStrWidth = Raylib.MeasureText(opScreenString, opTextSize);
                 }
                 else if(opScreenInt == 2)
                 {
                     opScreenString = "Resulution : 1200x800";
-                    opScreenStrWidth = Raylib.MeasureText(opScreenString, width/11);
+                    opScreenStrWidth = Raylib.MeasureText(opScreenString, opTextSize);
                 }
                 else if(opScreenInt == 3)
                 {
                     opScreenString = "Resulution : 1500x1000";
-                    opScreenStrWidth = Raylib.MeasureText(opScreenString, width/11);
+                    opScreenStrWidth = Raylib.MeasureText(opScreenString, opTextSize);
                 }
+                if(opScreenInt > 3)
+                {
+                    opScreenInt = 3;
+                }
+                if(opScreenInt < 0)
+                {
+                    opScreenInt = 0;
+                }
+            }
+
+            void GridString()
+            {
+                if(opGridInt == 1)
+                {
+                    opGridString = "Grid : 10x10";
+                } 
+                else if(opGridInt == 2)
+                {
+                    opGridString = "Grid : 12x12";
+                }
+                else if(opGridInt == 3)
+                {
+                    opGridString = "Grid : 15x15";
+                }
+                else if(opGridInt == 4)
+                {
+                    opGridString = "Grid : 18x18";
+                }
+                else if(opGridInt == 5)
+                {
+                    opGridString = "Grid : 20x20";
+                }
+                else if(opGridInt == 6)
+                {
+                    opGridString = "Grid : 30x30";
+                }
+                else if(opGridInt == 7)
+                {
+                    opGridString = "Grid : 40x40";
+                }
+                else if(opGridInt == 8)
+                {
+                    opGridString = "Grid : 60x60";
+                }
+
+                if(opGridInt > 8)
+                {
+                    opGridInt = 8;
+                }
+                if(opGridInt < 0)
+                {
+                    opGridInt = 0;
+                }
+                opGridStrWidth = Raylib.MeasureText(opGridString, opTextSize);
+                
             }
 
             void OptionSave()   //Called to change the values and add the to Settings.txt
             {
+                if(opScreenInt == 0)
+                {
+                    width = 400;
+                }
+                else if(opScreenInt == 1)
+                {
+                    width = 600;
+                }
+                else if(opScreenInt == 2)
+                {
+                    width = 800;
+                }
+                else if(opScreenInt == 3)
+                {
+                    width = 1000;
+                }
+
+                if(opGridInt == 1)
+                {
+                    gridSize = 10;
+                } 
+                else if(opGridInt == 2)
+                {
+                    gridSize = 12;
+                }
+                else if(opGridInt == 3)
+                {
+                    gridSize = 15;
+                }
+                else if(opGridInt == 4)
+                {
+                    gridSize = 18;
+                }
+                else if(opGridInt == 5)
+                {
+                    gridSize = 20;
+                }
+                else if(opGridInt == 6)
+                {
+                    gridSize = 30;
+                }
+                else if(opGridInt == 7)
+                {
+                    gridSize = 40;
+                }
+                else if(opGridInt == 8)
+                {
+                    gridSize = 60;
+                }
+
+                if(opGridInt > 8)
+                {
+                    opGridInt = 8;
+                }
+                if(opGridInt < 1)
+                {
+                    opGridInt = 1;
+                }
+
                 string[] settingStrings = new string[5];
                 settingStrings[0] = width.ToString();
                 settingStrings[1] = gridSize.ToString();
@@ -1339,12 +1726,9 @@ namespace Ship
                 }
                 
                 File.WriteAllLines(@"Settings.txt", settingStrings);
-                Raylib.SetMusicVolume(musicTrack0, musicTrack0Mult*audioMult*musicMult);
-                Raylib.SetMusicVolume(musicTrack1, musicTrack1Mult*audioMult*musicMult);
-                Raylib.SetMusicVolume(computerBeep, computerBeepMult * musicMult * audioMult);
-                Raylib.SetSoundVolume(shot0, shot0Mult*audioMult*sfxMult);
-                Raylib.SetSoundVolume(engineStart, engineStartMult*audioMult*sfxMult);
-                gameStage = 0;
+
+                System.Console.WriteLine("PLS RESTART THE GAME");       //TEST
+                gameShouldClose = true;
             }
 
             void WindowResize() //Because when the window is resized textures need to be recalculated   //Future
@@ -1384,6 +1768,11 @@ namespace Ship
                 Raylib.ImageResize(ref player1_1x4Img, (int)gridMainSize.X, (int)gridMainSize.Y*4);
                 Raylib.ImageResize(ref player1_Test6Img, (int)gridMainSize.X, (int)gridMainSize.Y);
 
+                Raylib.ImageResize(ref player1_3x1Img, (int)gridMainSize.X*3, (int)gridMainSize.Y);
+                Raylib.ImageResize(ref player1_2x1Img, (int)gridMainSize.X*2, (int)gridMainSize.Y);
+                Raylib.ImageResize(ref player1_5x1Img, (int)gridMainSize.X*5, (int)gridMainSize.Y);
+                Raylib.ImageResize(ref player1_4x1Img, (int)gridMainSize.X*4, (int)gridMainSize.Y);
+
             //Player 2 Ships
                 Raylib.ImageResize(ref player2_1x3Img, (int)gridMainSize.X, (int)gridMainSize.Y*3);
                 Raylib.ImageResize(ref player2_1x2Img, (int)gridMainSize.X, (int)gridMainSize.Y*2);
@@ -1391,6 +1780,12 @@ namespace Ship
                 Raylib.ImageResize(ref player2_1x5Img, (int)gridMainSize.X, (int)gridMainSize.Y*5);
                 Raylib.ImageResize(ref player2_1x4Img, (int)gridMainSize.X, (int)gridMainSize.Y*4);
                 Raylib.ImageResize(ref player2_Test6Img, (int)gridMainSize.X, (int)gridMainSize.Y);
+
+                Raylib.ImageResize(ref player2_3x1Img, (int)gridMainSize.X*3, (int)gridMainSize.Y);
+                Raylib.ImageResize(ref player2_2x1Img, (int)gridMainSize.X*2, (int)gridMainSize.Y);
+                Raylib.ImageResize(ref player2_5x1Img, (int)gridMainSize.X*5, (int)gridMainSize.Y);
+                Raylib.ImageResize(ref player2_4x1Img, (int)gridMainSize.X*4, (int)gridMainSize.Y);
+
 
                 Raylib.ImageResize(ref arrrowLeftOrgImg, (int)(opContainerSize.Y*0.8f), (int)(opContainerSize.Y*0.8f));
                 Raylib.ImageResize(ref arrrowLeftHovImg, (int)(opContainerSize.Y*0.8f), (int)(opContainerSize.Y*0.8f));
@@ -1458,12 +1853,24 @@ namespace Ship
                 player1_1x4Tex = Raylib.LoadTextureFromImage(player1_1x4Img);
                 player1_Test6Tex = Raylib.LoadTextureFromImage(player1_Test6Img);
 
+                player1_3x1Tex = Raylib.LoadTextureFromImage(player1_3x1Img);
+                player1_2x1Tex = Raylib.LoadTextureFromImage(player1_2x1Img);
+                player1_5x1Tex = Raylib.LoadTextureFromImage(player1_5x1Img);
+                player1_4x1Tex = Raylib.LoadTextureFromImage(player1_4x1Img);
+
+
                 player2_1x3Tex = Raylib.LoadTextureFromImage(player2_1x3Img);
                 player2_1x2Tex = Raylib.LoadTextureFromImage(player2_1x2Img);
                 player2_2x2Tex = Raylib.LoadTextureFromImage(player2_2x2Img);
                 player2_1x5Tex = Raylib.LoadTextureFromImage(player2_1x5Img);
                 player2_1x4Tex = Raylib.LoadTextureFromImage(player2_1x4Img);
                 player2_Test6Tex = Raylib.LoadTextureFromImage(player2_Test6Img);
+
+                player2_3x1Tex = Raylib.LoadTextureFromImage(player2_3x1Img);
+                player2_2x1Tex = Raylib.LoadTextureFromImage(player2_2x1Img);
+                player2_5x1Tex = Raylib.LoadTextureFromImage(player2_5x1Img);
+                player2_4x1Tex = Raylib.LoadTextureFromImage(player2_4x1Img);
+
 
                 arrowLeftOrgTex = Raylib.LoadTextureFromImage(arrrowLeftOrgImg);
                 arrowLeftHovTex = Raylib.LoadTextureFromImage(arrrowLeftHovImg);
@@ -1478,102 +1885,203 @@ namespace Ship
             {
                 if(Ship.activePlayer == 0 && gamePhase == 0){
                     for(int i = 0; i < p1ShipList.Count; i++)
-                    {
-                        if (p1ShipList[i].type == 0)
+                    {   
+                        if(p1ShipList[i].align == false)
                         {
-                            Raylib.DrawTexture(player1_1x2Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            if (p1ShipList[i].type == 0)
+                            {
+                                Raylib.DrawTexture(player1_1x2Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 1)
+                            {
+                                Raylib.DrawTexture(player1_1x3Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 2)
+                            {
+                               Raylib.DrawTexture(player1_1x4Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 3)
+                            {
+                                Raylib.DrawTexture(player1_1x5Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 4)
+                            {
+                                Raylib.DrawTexture(player1_2x2Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
                         }
-                        else if (p1ShipList[i].type == 1)
+                        else if(p1ShipList[i].align == true)
                         {
-                            Raylib.DrawTexture(player1_1x3Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                        else if (p1ShipList[i].type == 2)
-                        {
-                           Raylib.DrawTexture(player1_1x4Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                        else if (p1ShipList[i].type == 3)
-                        {
-                            Raylib.DrawTexture(player1_1x5Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                        else if (p1ShipList[i].type == 4)
-                        {
-                            Raylib.DrawTexture(player1_2x2Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            if (p1ShipList[i].type == 0)
+                            {
+                                Raylib.DrawTexture(player1_2x1Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 1)
+                            {
+                                Raylib.DrawTexture(player1_3x1Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 2)
+                            {
+                               Raylib.DrawTexture(player1_4x1Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 3)
+                            {
+                                Raylib.DrawTexture(player1_5x1Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 4)
+                            {
+                                Raylib.DrawTexture(player1_2x2Tex, border+(int)p1ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p1ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
                         }
                     }
                 }
+                
                 if(Ship.activePlayer == 1 && gamePhase == 0){
                     for(int i = 0; i < p2ShipList.Count; i++)
                     {
-                        if (p2ShipList[i].type == 0)
-                        {
-                            Raylib.DrawTexture(player2_1x2Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                        if(p2ShipList[i].align == false){
+                            if (p2ShipList[i].type == 0)
+                            {
+                                Raylib.DrawTexture(player2_1x2Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 1)
+                            {
+                                Raylib.DrawTexture(player2_1x3Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 2)
+                            {
+                               Raylib.DrawTexture(player2_1x4Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 3)
+                            {
+                                Raylib.DrawTexture(player2_1x5Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 4)
+                            {
+                                Raylib.DrawTexture(player2_2x2Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
                         }
-                        else if (p2ShipList[i].type == 1)
-                        {
-                            Raylib.DrawTexture(player2_1x3Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                        else if (p2ShipList[i].type == 2)
-                        {
-                           Raylib.DrawTexture(player2_1x4Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                        else if (p2ShipList[i].type == 3)
-                        {
-                            Raylib.DrawTexture(player2_1x5Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
-                        }
-                        else if (p2ShipList[i].type == 4)
-                        {
-                            Raylib.DrawTexture(player2_2x2Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                        else if(p2ShipList[i].align == true){
+                            if (p2ShipList[i].type == 0)
+                            {
+                                Raylib.DrawTexture(player2_2x1Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 1)
+                            {
+                                Raylib.DrawTexture(player2_3x1Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 2)
+                            {
+                               Raylib.DrawTexture(player2_4x1Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 3)
+                            {
+                                Raylib.DrawTexture(player2_5x1Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 4)
+                            {
+                                Raylib.DrawTexture(player2_2x2Tex, border+(int)p2ShipList[i].position.X*((width-(border*2))/gridSize), border+(int)p2ShipList[i].position.Y*((height-(border*2))/gridSize), Color.WHITE);
+                            }
                         }
                     }
                 }
 
+                
                 if(Ship.activePlayer == 0 && gamePhase == 1){
                     for(int i = 0; i < p1ShipList.Count; i++)
                     {
-                        if (p1ShipList[i].type == 0)
-                        {
-                            Raylib.DrawTextureEx(player1_1x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                        if(p1ShipList[i].align == false){
+                            if (p1ShipList[i].type == 0)
+                            {
+                                Raylib.DrawTextureEx(player1_1x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 1)
+                            {   
+                                Raylib.DrawTextureEx(player1_1x3Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 2)
+                            {
+                                Raylib.DrawTextureEx(player1_1x4Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 3)
+                            {
+                                Raylib.DrawTextureEx(player1_1x5Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 4)
+                            {
+                                Raylib.DrawTextureEx(player1_2x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
                         }
-                        else if (p1ShipList[i].type == 1)
-                        {
-                            Raylib.DrawTextureEx(player1_1x3Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
-                        }
-                        else if (p1ShipList[i].type == 2)
-                        {
-                            Raylib.DrawTextureEx(player1_1x4Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
-                        }
-                        else if (p1ShipList[i].type == 3)
-                        {
-                            Raylib.DrawTextureEx(player1_1x5Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
-                        }
-                        else if (p1ShipList[i].type == 4)
-                        {
-                            Raylib.DrawTextureEx(player1_2x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                        else if(p1ShipList[i].align == true){
+                            if (p1ShipList[i].type == 0)
+                            {
+                                Raylib.DrawTextureEx(player1_2x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 1)
+                            {   
+                                Raylib.DrawTextureEx(player1_3x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 2)
+                            {
+                                Raylib.DrawTextureEx(player1_4x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 3)
+                            {
+                                Raylib.DrawTextureEx(player1_5x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p1ShipList[i].type == 4)
+                            {
+                                Raylib.DrawTextureEx(player1_2x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
                         }
                     }
                 }
+                
                 if(Ship.activePlayer == 1 && gamePhase == 1){
                     for(int i = 0; i < p2ShipList.Count; i++)
                     {
-                        if (p2ShipList[i].type == 0)
-                        {
-                            Raylib.DrawTextureEx(player2_1x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                        if(p2ShipList[i].align == false){
+                            if (p2ShipList[i].type == 0)
+                            {
+                                Raylib.DrawTextureEx(player2_1x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 1)
+                            {
+                                Raylib.DrawTextureEx(player2_1x3Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 2)
+                            {
+                                Raylib.DrawTextureEx(player2_1x4Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 3)
+                            {
+                                Raylib.DrawTextureEx(player2_1x5Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 4)
+                            {
+                                Raylib.DrawTextureEx(player2_2x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
                         }
-                        else if (p2ShipList[i].type == 1)
-                        {
-                            Raylib.DrawTextureEx(player2_1x3Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
-                        }
-                        else if (p2ShipList[i].type == 2)
-                        {
-                            Raylib.DrawTextureEx(player2_1x4Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
-                        }
-                        else if (p2ShipList[i].type == 3)
-                        {
-                            Raylib.DrawTextureEx(player2_1x5Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
-                        }
-                        else if (p2ShipList[i].type == 4)
-                        {
-                            Raylib.DrawTextureEx(player2_2x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                        else if(p2ShipList[i].align == true){
+                            if (p2ShipList[i].type == 0)
+                            {
+                                Raylib.DrawTextureEx(player2_2x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 1)
+                            {
+                                Raylib.DrawTextureEx(player2_3x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 2)
+                            {
+                                Raylib.DrawTextureEx(player2_4x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 3)
+                            {
+                                Raylib.DrawTextureEx(player2_5x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
+                            else if (p2ShipList[i].type == 4)
+                            {
+                                Raylib.DrawTextureEx(player2_2x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                            }
                         }
                     }
                 }
@@ -1591,15 +2099,65 @@ namespace Ship
                 Raylib.DrawText("THERE HAS BEEN A CRITICAL ERROR", border, border, width/20, Color.RED);
                 Raylib.UpdateMusicStream(computerBeep);
             }
+        
+            while(gameShouldClose == false)  //Game Loop, uses bool as the CloseWindow(); would couse error while not breaking (!WindowShouldClose())
+            {
+                try{
+                    Raylib.SetExitKey(0);       //Dont exit with Esc
+                    Raylib.BeginDrawing();      //Start drawing (Including everything to be able to draw at any point)
+                    Raylib.ClearBackground(Color.BLACK);    //Basic Background
+                    FPS = Raylib.GetFPS();      //The FPS
+                    Raylib.DrawText($"FPS: {FPS}", width-80, height-18, 16, Color.WHITE);   //Draws FPS, remove?
+                    MousePos = Raylib.GetMousePosition();
+                    if(Raylib.IsKeyPressed(KeyboardKey.KEY_ESCAPE))
+                    {
+                        gameStage = 0;
+                        System.Console.WriteLine("INFO : MENU Activated");
+                    }
+                    if(Raylib.IsKeyPressed(KeyboardKey.KEY_RIGHT_SHIFT))
+                    {
+                        Test();
+                    }
+                    if(gameStage == 0)
+                    {
+                        menu();
+                        Raylib.ShowCursor();
+                    }
+                    else if(gameStage == 1) //Game
+                    {
+                        game();
+                        Raylib.HideCursor();
+                    }
+                    else if(gameStage == 2) //Game
+                    {
+                        opScreenStrWidth = Raylib.MeasureText(opScreenString, opTextSize);
+                        opGridStrWidth = Raylib.MeasureText(opGridString, opTextSize);
+                        opStrHeight = (int)opContainerSize.Y - (opTextSize) - 2*optionBorder;
+                        Options();
+                        Raylib.ShowCursor();
+                    }
+                    else
+                    {
+                        gameStage = 0;
+                        menu();
+                        Raylib.ShowCursor();
+                    }
+                    Raylib.EndDrawing();
+                }
+                catch
+                {
+                    CritError();
+                }
+                Music();
+                if(Raylib.IsKeyPressed(KeyboardKey.KEY_L)){gameShouldClose = true;} //Test
+                if(Raylib.WindowShouldClose() == true){gameShouldClose = true;} //So the exit key and X in the corner works
+            }
         }
         
     }
 }
 
 //FIX
-//Change reset point so random for 4 middle points if even gridsize
-//Size of window can be changed during game.. So it should be changeable
-//Raylib.DisableCursor(); so while ingame no cursor (only if fullscreen?) //Dont do fullscreen, we will all die
 //Ship texture rotated?
 //Diffrent Cursor Depending on player
 //Use Mouse?
@@ -1608,5 +2166,8 @@ namespace Ship
 //Shooting (Where you have shoot at oppenent and where opponent have shoot at you)
 //How many ships you are Should use of each type
 //freakyNews to be used when waiting for next player?
+//Make the game stop if settings stop
 
 //All Images and Sounds are made by other people
+
+//Fix Horizontal Alignment
