@@ -1655,7 +1655,6 @@ namespace Ship
                 {
                     for(int b = 0; b < gridSize; b++)   //To improve FPS these are calculated outside of loop then multiplied by 'a' and 'b' inside
                     {
-                        //Raylib.DrawTexture(waterRecTex, border+a*(int)gridMainPos.X, border+b*(int)gridMainPos.Y, Color.WHITE);                             //The GamePlane Texture
                         if(backgroundTexArray[a,b]==0)
                         {
                             Raylib.DrawTexture(bgTex0, border+a*(int)gridMainPos.X, border+b*(int)gridMainPos.Y, gridCol);
@@ -1753,6 +1752,7 @@ namespace Ship
                         {
                             Raylib.DrawTextureEx(bgTex11,gridSidePos,0,0.5f,gridCol);
                         }
+                        
                         Raylib.DrawRectangleLines(border+a*(int)gridMainPos.X, border+b*(int)gridMainPos.Y, (int)gridMainSize.X, (int)gridMainSize.Y, gridLines);  //Grid
                         Raylib.DrawRectangleLines((int)gridSidePos.X , (int)gridSidePos.Y , (int)gridMainSize.X/2 , (int)gridMainSize.Y/2 , gridLines);   //Side Grid
                         gridSidePos.X = a*((width-(border*2))/gridSize)/2 + width;
@@ -2380,53 +2380,59 @@ namespace Ship
                         if(p2ShipList[i].align == false){
                             if (p2ShipList[i].type == 0)
                             {
-                                Raylib.DrawTextureEx(player2_1x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                                Raylib.DrawTextureEx(player2_1x2Tex, p2ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
                             }
                             else if (p2ShipList[i].type == 1)
                             {
-                                Raylib.DrawTextureEx(player2_1x3Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                                Raylib.DrawTextureEx(player2_1x3Tex, p2ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
                             }
                             else if (p2ShipList[i].type == 2)
                             {
-                                Raylib.DrawTextureEx(player2_1x4Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                                Raylib.DrawTextureEx(player2_1x4Tex, p2ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
                             }
                             else if (p2ShipList[i].type == 3)
                             {
-                                Raylib.DrawTextureEx(player2_1x5Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                                Raylib.DrawTextureEx(player2_1x5Tex, p2ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
                             }
                             else if (p2ShipList[i].type == 4)
                             {
-                                Raylib.DrawTextureEx(player2_2x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                                Raylib.DrawTextureEx(player2_2x2Tex, p2ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
                             }
                         }
                         else if(p2ShipList[i].align == true){
                             if (p2ShipList[i].type == 0)
                             {
-                                Raylib.DrawTextureEx(player2_2x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                                Raylib.DrawTextureEx(player2_2x1Tex, p2ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
                             }
                             else if (p2ShipList[i].type == 1)
                             {
-                                Raylib.DrawTextureEx(player2_3x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                                Raylib.DrawTextureEx(player2_3x1Tex, p2ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
                             }
                             else if (p2ShipList[i].type == 2)
                             {
-                                Raylib.DrawTextureEx(player2_4x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                                Raylib.DrawTextureEx(player2_4x1Tex, p2ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
                             }
                             else if (p2ShipList[i].type == 3)
                             {
-                                Raylib.DrawTextureEx(player2_5x1Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                                Raylib.DrawTextureEx(player2_5x1Tex, p2ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
                             }
                             else if (p2ShipList[i].type == 4)
                             {
-                                Raylib.DrawTextureEx(player2_2x2Tex, p1ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
+                                Raylib.DrawTextureEx(player2_2x2Tex, p2ShipList[i].sidePositionDefined, 0, 0.5f, Color.WHITE);
                             }
                         }
                     }
+                }
+
+                if(gamePhase == 1 && Raylib.IsKeyUp(KeyboardKey.KEY_T)) //Hides player ships so the second player dosent need to leave
+                {
+                    Raylib.DrawRectangle(width, 0, (int)(gridMainSize.X*5f), (int)(gridMainSize.Y*5f), Color.BLACK);
                 }
             }         
 
             void Test()
             {
+                System.Console.WriteLine("PLAYER 1 HITBOX");
                 for(int i = 0; i < gridSize; i++){
                     for (int j = 0; j < gridSize; j++)
                     {
@@ -2435,10 +2441,28 @@ namespace Ship
                     System.Console.WriteLine("");
                 }
                 System.Console.WriteLine("");
+                System.Console.WriteLine("PLAYER 2 HITBOX");
                 for(int i = 0; i < gridSize; i++){
                     for (int j = 0; j < gridSize; j++)
                     {
                         System.Console.Write($"{Ship.P2Hitbox[j,i]} ");
+                    }
+                    System.Console.WriteLine("");
+                }
+                System.Console.WriteLine("PLAYER 1 SHOTAT");
+                for(int i = 0; i < gridSize; i++){
+                    for (int j = 0; j < gridSize; j++)
+                    {
+                        System.Console.Write($"{Ship.P1ShotAt[j,i]} ");
+                    }
+                    System.Console.WriteLine("");
+                }
+                System.Console.WriteLine("");
+                System.Console.WriteLine("PLAYER 2 SHOTAT");
+                for(int i = 0; i < gridSize; i++){
+                    for (int j = 0; j < gridSize; j++)
+                    {
+                        System.Console.Write($"{Ship.P2ShotAt[j,i]} ");
                     }
                     System.Console.WriteLine("");
                 }
@@ -2505,14 +2529,21 @@ namespace Ship
     }
 }
 
-//FIX
+//Maybe
 //Use Mouse?
-//Recordar hela striden och sen ställer up sidorna mot varandra och ser deras attacker?
 //Meny Knappar, nedre Högra hörnet?
-//Shooting (Where you have shoot at oppenent and where opponent have shoot at you)
-//How many ships you have / Should use of each type
 //freakyNews to be used when waiting for next player?
+//Multiple Themes
+
+//ADD
+//How many ships you have / Should use of each type
+//Transition Screen Between players
+//Sound Effects
+//Animations
+//If full ships have beeen shot dwon
+//Win Screen
+//Credits
+
+
 
 //All Images and Sounds are made by other people
-
-//Some of the Grid Sizes have errors, FIX (or change Availble Grids)
