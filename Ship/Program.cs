@@ -626,6 +626,7 @@ namespace Ship
                             }
                         }
                     }
+                    
                     else if(Ship.activePlayer == 1)
                     {
                         Raylib.ClearBackground(p2Color);
@@ -663,8 +664,6 @@ namespace Ship
                             }
                         }
                     }
-
-
                 }
 
                 Grid();
@@ -1638,7 +1637,7 @@ namespace Ship
 
             void Music()
             {
-                if(gameStage == 0)
+                if(gameStage == 0 || gameStage == 2)
                 {
                     Raylib.UpdateMusicStream(musicTrack1);
                 }
