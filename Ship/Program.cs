@@ -33,7 +33,7 @@ namespace Ship
             if(activePlayer == 0){  //If player 1 is playing
                 if(align == false)  //If the ship is vertical   //Adds the positions to the hitbox 
                 {
-                    try{    //Try used if the player mangeges to have a ship out of borders
+                    try{    //Try used if the player manges to have a ship out of borders
                         if(type == 0)
                         {
                             P1Hitbox[(int)position.X, (int)position.Y] = true;
@@ -76,7 +76,7 @@ namespace Ship
 
                 else if(align == true)
                 {
-                    try{    //Try used if the player mangeges to have a ship out of borders
+                    try{    //Try used if the player manges to have a ship out of borders
                         if(type == 0)
                         {
                             P1Hitbox[(int)position.X, (int)position.Y] = true;
@@ -157,7 +157,7 @@ namespace Ship
                 }
                 if(align == true)
                 {
-                    try{    //Try used if the player mangeges to have a ship out of borders
+                    try{    //Try used if the player manges to have a ship out of borders
                         if(type == 0)
                         {
                             P2Hitbox[(int)position.X, (int)position.Y] = true;
@@ -208,7 +208,7 @@ namespace Ship
             bool gameShouldClose = false;
             int width = 1000;   //The width of the window (Ish) actully Full width = width*1.5
             int FPS;            //How fast the game runs
-            int gridSize = 15;  //Hard to use over arund 100   //May still be a problem with some numbers
+            int gridSize = 15;  //Hard to use over around 100   //May still be a problem with some numbers
 
             float audioMult = 0.5f; //To lower / increase sound ingame
             float sfxMult = 0.5f;
@@ -2501,7 +2501,7 @@ namespace Ship
                     {
                         game();
                     }
-                    else if(gameStage == 2) //Game
+                    else if(gameStage == 2) //Options
                     {
                         opScreenStrWidth = Raylib.MeasureText(opScreenString, opTextSize);
                         opGridStrWidth = Raylib.MeasureText(opGridString, opTextSize);
@@ -2539,10 +2539,10 @@ namespace Ship
 //Transition Screen Between players
 //Sound Effects
 //Animations
-//If full ships have beeen shot dwon
+//If full ships have beeen shot down //Vector2 list? for every ship with every location it fills?
 //Win Screen
 //Credits
 
 
 
-//All Images and Sounds are made by other people
+//Most Images and Sounds are made by other people
