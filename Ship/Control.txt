@@ -1,0 +1,6 @@
+X - Temporary Button to change mode
+W,A,S,D + Arrows - move ship / Cross (Shooting at)
+Enter - Shoot / Place ship
+Q, E - Change active ship to place
+Z - Change Rotation of ship Placement
+T - Show ships in shooting phase
